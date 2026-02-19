@@ -57,7 +57,6 @@
         .keep-all { word-break: keep-all; overflow-wrap: break-word; }
         .tap-scale:active { transform: scale(0.96); transition: transform 0.1s ease; }
         
-        /* 추천 뱃지 애니메이션 */
         @keyframes bounce-subtle {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
@@ -103,13 +102,65 @@
             return <span ref={containerRef} className="inline-flex items-center justify-center shrink-0" />;
         };
 
-        // --- 루틴 및 설정 데이터 ---
+        // --- 루틴 및 설정 데이터 (이미지 텍스트 기반 업데이트) ---
         const ROUTINES = [
-            { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", hasRingfit: true, hasBoxing: true, synergy: "하체 소진 후 복싱 시 체지방 연소 극대화" },
-            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", hasRingfit: false, hasBoxing: true, synergy: "관절 피로를 관리하면서 높은 유산소 효과 유도" },
-            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", hasRingfit: true, hasBoxing: true, synergy: "상체를 펴주고 코어 안정성을 높입니다." },
-            { id: 'rest', label: "EVO", name: "시스템 초회복", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", hasRingfit: false, hasBoxing: false, synergy: "성장은 휴식 중에 일어납니다. 초회복 골든타임." },
-            { id: 'off', label: "OFF", name: "일반 휴식", detail: "운동 일정 없는 정지", color: "from-slate-600 to-slate-800", hasRingfit: false, hasBoxing: false, synergy: "컨디션 난조나 사정으로 인한 정지 상태." },
+            { 
+                id: 'day1', 
+                label: "D1", 
+                name: "하체 파워 보강", 
+                detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", 
+                color: "from-blue-600 to-indigo-700", 
+                hasRingfit: true, 
+                hasBoxing: true, 
+                synergy: "하체 파워 보강: 스쿼트와 런지로 하체 근력을 먼저 소진한 뒤 복싱을 하면 하체 지지력이 좋아지고 체지방 연소가 더 빨라집니다." 
+            },
+            { 
+                id: 'day2', 
+                label: "D2", 
+                name: "순수 심폐 폭격", 
+                detail: "피트니스 복싱 3 고강도(50분) 단독 수행", 
+                color: "from-cyan-400 to-blue-500", 
+                hasRingfit: false, 
+                hasBoxing: true, 
+                synergy: "순수 심폐 폭격: 링피트를 제외하여 관절의 피로도를 관리하면서, 50분 내내 높은 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다." 
+            },
+            { 
+                id: 'day3', 
+                label: "D3", 
+                name: "자세 및 밸런스", 
+                detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", 
+                color: "from-orange-500 to-red-600", 
+                hasRingfit: true, 
+                hasBoxing: true, 
+                synergy: "자세 및 밸런스: 복싱의 웅크린 자세로 인해 굳기 쉬운 등과 어깨를 링피트로 펴주고, 코어를 잡아 펀치의 안정성을 높입니다." 
+            },
+            { 
+                id: 'rest', 
+                label: "EVO", 
+                name: "시스템 재정비", 
+                detail: "완전 휴식 (Recovery)", 
+                color: "from-emerald-500 to-teal-600", 
+                hasRingfit: false, 
+                hasBoxing: false, 
+                synergy: "시스템 재정비: 고강도 운동 후 근육이 재생되는 필수 시간입니다. 가벼운 산책이나 스트레칭만 권장합니다." 
+            },
+            { 
+                id: 'off', 
+                label: "OFF", 
+                name: "일반 휴식", 
+                detail: "개인 사정으로 인한 정지 상태", 
+                color: "from-slate-600 to-slate-800", 
+                hasRingfit: false, 
+                hasBoxing: false, 
+                synergy: "컨디션 난조나 일정 소화 불능 시 에너지를 보존하고 다음 사이클을 준비하세요." 
+            },
+        ];
+
+        const CORE_GUIDES = [
+            { title: "운동 순서", text: "링피트 → 복싱 순서로 반드시 진행하여 탄수화물을 먼저 소진하고 복싱에서 체지방 연소를 극대화하세요.", icon: "arrow-right-circle" },
+            { title: "관절 및 피로 관리", text: "50분 고강도 복싱 부하를 고려해 링피트는 하체/코어 위주로, 3일차엔 정확한 궤적에 집중하여 부상을 예방하세요.", icon: "activity" },
+            { title: "영양 및 회복", text: "운동 후 즉시 단백질 섭취로 근손실 방지, 휴식일에는 충분한 수면으로 다음 사이클을 준비하세요.", icon: "coffee" },
+            { title: "링피트의 '보조' 역할", text: "복싱이 메인입니다. 링피트는 15~20분간 복싱에서 쓰지 않는 근육을 활성화하는 데 집중하세요.", icon: "target" }
         ];
 
         const COMPLETION_TYPES = [
@@ -121,8 +172,7 @@
         const BASE_QUOTES = [
             "어제보다 나은 오늘이 당신을 위대하게 만든다.", "한계는 당신의 마음이 결정하는 허상일 뿐이다.", "지금의 고통은 미래의 당신이 보낸 감사장이다.",
             "변명은 칼로리를 태우지 못한다. 일어나라.", "완벽보다 딱 1%만 더 나아가라.", "초회복 중, 신체는 지금 진화하고 있다.",
-            "땀방울은 당신이 살아있다는 뜨거운 증거.", "오늘 하지 않으면 내일의 당신이 고생한다.", "포기하고 싶을 때 왜 시작했는지 생각하라.",
-            "근육은 정직한 노력의 산물이다.", "강한 신체에 강한 정신이 깃든다.", "고통은 지나가지만 결과는 남는다."
+            "땀방울은 당신이 살아있다는 뜨거운 증거.", "오늘 하지 않으면 내일의 당신이 고생한다.", "포기하고 싶을 때 왜 시작했는지 생각하라."
         ];
 
         function App() {
@@ -150,7 +200,7 @@
             const selectedLog = logs[selectedDateStr];
 
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_v30_final');
+                const saved = localStorage.getItem('workout_logs_v31_final');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
@@ -169,7 +219,7 @@
                 setTimeout(() => setToast(null), 2500);
             };
 
-            // --- 탭 전환 데이터 가공 로직 ---
+            // 탭 전환 데이터 가공 로직
             const memoLogs = useMemo(() => {
                 return Object.entries(logs)
                     .filter(([_, data]) => data.note && data.note.trim() !== "")
@@ -183,7 +233,6 @@
                 return BASE_QUOTES[dayOfYear % BASE_QUOTES.length];
             }, [selectedDate]);
 
-            // --- 코스 추천 로직 (D1 -> D2 -> D3 -> EVO -> D1) ---
             const recommendedRoutineId = useMemo(() => {
                 const prev = new Date(selectedDate);
                 prev.setDate(prev.getDate() - 1);
@@ -215,20 +264,20 @@
                     } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v30_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v31_final', JSON.stringify(newLogs));
             };
 
             const handleManualSave = () => {
                 if (!selectedLog) { showMessage("루틴을 먼저 선택하세요."); return; }
                 saveLog(selectedDateStr, selectedLog.programId, selectedLog.status, tempData);
-                showMessage("기록이 성공적으로 동기화되었습니다.");
+                showMessage("기록이 업데이트되었습니다.");
             };
 
             const deleteLogEntry = () => {
                 const newLogs = { ...logs };
                 delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v30_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v31_final', JSON.stringify(newLogs));
                 showMessage("데이터 삭제 완료");
             };
 
@@ -238,7 +287,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `limit_breaker_v30.json`;
+                link.download = `limit_breaker_routine.json`;
                 link.click();
                 showMessage("백업 파일 생성됨");
             };
@@ -252,15 +301,14 @@
                         const imported = JSON.parse(e.target.result);
                         if (imported) {
                             setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_v30_final', JSON.stringify({ ...logs, ...imported }));
-                            showMessage("성공적으로 복구되었습니다.");
+                            localStorage.setItem('workout_logs_v31_final', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("복구 성공!");
                         }
                     } catch (err) { showMessage("오류 발생"); }
                 };
                 reader.readAsText(file);
             };
 
-            // 차트 분석 데이터
             const chartAnalytics = useMemo(() => {
                 const sortedDates = Object.keys(logs).sort();
                 if (sortedDates.length === 0) return [];
@@ -282,7 +330,6 @@
                 })).slice(chartPeriod === 'day' ? -14 : -12);
             }, [logs, chartPeriod]);
 
-            // 차트 렌더링 컴포넌트
             const LineChart = ({ data }) => {
                 const width = 300, height = 120;
                 const valid = data.filter(d => d.weight !== null);
@@ -322,7 +369,7 @@
                                     <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" />
                                     <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" />
                                     <text x={x + barWidth/2} y={height + 25} textAnchor="middle" fontSize="10" fill="#64748b" fontWeight="bold">{d.label}</text>
-                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 10} textAnchor="middle" fontSize="12" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
+                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="12" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
                                 </g>
                             );
                         })}
@@ -364,10 +411,9 @@
                             </div>
                         </header>
 
-                        {/* 메인 탭 콘텐츠 영역 */}
                         <main className="mb-10">
                             {viewMode === 'calendar' && (
-                                <div className="flex flex-col gap-4 animate-in fade-in duration-500">
+                                <div className="flex flex-col gap-5 animate-in fade-in duration-500">
                                     <div className="glass rounded-[2.2rem] p-4 sm:p-8 shadow-2xl border-white/5">
                                         <div className="flex justify-between items-center mb-6">
                                             <button onClick={() => setShowNavModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-base sm:text-2xl font-black italic hover:border-cyan-400/50 transition-all">
@@ -397,7 +443,7 @@
                                                         className={`calendar-cell rounded-[1rem] sm:rounded-[1.5rem] transition-all duration-300 border-2 
                                                         ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} 
                                                         ${isTodayLocal && !isActive ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)]' : ''}`}>
-                                                        <span className={`text-base sm:text-3xl font-black leading-none mt-1 ${isActive ? 'text-white' : isTodayLocal ? 'text-cyan-400 underline underline-offset-4' : 'text-slate-400'}`}>{date.getDate()}</span>
+                                                        <span className={`text-base sm:text-3xl font-black leading-none mt-1 ${isActive ? 'text-white' : isTodayLocal ? 'text-cyan-400 underline underline-offset-4 decoration-2' : 'text-slate-400'}`}>{date.getDate()}</span>
                                                         <div className="flex flex-col items-center gap-1 w-full pb-1 mt-auto">
                                                             {log && routine && (
                                                                 <div className="scale-90 transition-transform drop-shadow-sm">
@@ -433,7 +479,7 @@
                                         <div className={`p-6 bg-gradient-to-br ${selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.color : 'from-slate-800 to-slate-900'} transition-all duration-1000 relative border-b border-white/5 shadow-lg`}>
                                             <p className="text-white/60 text-[11px] font-black mb-1 uppercase tracking-widest opacity-90">{selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
                                             <h2 className="text-2xl sm:text-4xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Combat Briefing"}</h2>
-                                            {selectedLog && <button onClick={deleteLogEntry} className="absolute top-8 right-8 p-3 bg-black/20 rounded-full text-red-400 border border-white/5 tap-scale shadow-md hover:bg-red-500/20"><LucideIcon name="trash-2" size={20} /></button>}
+                                            {selectedLog && <button onClick={deleteLogEntry} className="absolute top-8 right-8 p-3 bg-black/20 rounded-full text-red-400 border border-white/5 tap-scale shadow-md hover:bg-red-500/20 transition-all"><LucideIcon name="trash-2" size={20} /></button>}
                                         </div>
                                         <div className="p-6 space-y-10">
                                             <section>
@@ -479,7 +525,7 @@
                                                     <section className="space-y-6">
                                                         <h3 className="text-[13px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex items-center justify-between">
                                                             Update Performance
-                                                            {selectedLog.updatedAt && <span className="text-[9px] font-medium opacity-40">LAST SYNC: {new Date(selectedLog.updatedAt).toLocaleTimeString()}</span>}
+                                                            {selectedLog.updatedAt && <span className="text-[9px] font-medium opacity-40 uppercase">Sync: {new Date(selectedLog.updatedAt).toLocaleTimeString()}</span>}
                                                         </h3>
                                                         <div className="grid grid-cols-2 gap-5">
                                                             <div className="space-y-2 relative group">
@@ -517,12 +563,12 @@
                             )}
 
                             {viewMode === 'chart' && (
-                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
+                                <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
                                     <div className="flex justify-between items-center px-1">
                                         <h3 className="text-xl font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-3"><LucideIcon name="trending-up" size={28}/> Performance</h3>
                                         <div className="flex bg-white/5 rounded-full p-2 border border-white/10 shadow-inner">
                                             {['day', 'week', 'month', 'year'].map(p => (
-                                                <button key={p} onClick={() => setChartPeriod(p)} className={`px-5 py-2.5 rounded-full text-[14px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
+                                                <button key={p} onClick={() => setChartPeriod(p)} className={`px-5 py-2.5 rounded-full text-[12px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
                                             ))}
                                         </div>
                                     </div>
@@ -531,11 +577,11 @@
                                         <div className="chart-container"><LineChart data={chartAnalytics} /></div>
                                     </div>
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl">
-                                        <div className="flex justify-between items-center mb-10">
-                                            <h4 className="text-2xl font-black text-white uppercase tracking-tight">Energy Burnt</h4>
-                                            <div className="flex gap-5">
-                                                <div className="flex items-center gap-3 text-[12px] font-black text-orange-500 uppercase tracking-widest"><div className="w-4 h-4 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div> RF</div>
-                                                <div className="flex items-center gap-3 text-[12px] font-black text-blue-500 uppercase tracking-widest"><div className="w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div> BX</div>
+                                        <div className="flex justify-between items-center mb-10 text-center flex-col gap-4">
+                                            <h4 className="text-xl font-black text-white uppercase tracking-tight">Energy Burnt (kcal)</h4>
+                                            <div className="flex gap-5 justify-center">
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]"></div> RF</div>
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div> BX</div>
                                             </div>
                                         </div>
                                         <div className="chart-container mb-10">
@@ -572,8 +618,9 @@
                             )}
 
                             {viewMode === 'program' && (
-                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
+                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500 pb-20">
                                     <h3 className="text-2xl font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-4 mb-4"><LucideIcon name="layout-grid" size={32}/> Hybrid Database</h3>
+                                    
                                     <div className="grid grid-cols-1 gap-6">
                                         {ROUTINES.map(r => (
                                             <div key={r.id} className="glass rounded-[3.5rem] overflow-hidden shadow-2xl border-white/5 group hover:border-cyan-400/50 transition-all border border-white/5">
@@ -582,13 +629,36 @@
                                                     <LucideIcon name={r.id === 'rest' ? "sparkles" : r.id === 'off' ? "moon" : "flame"} size={40} className="text-white shadow-md" />
                                                 </div>
                                                 <div className="p-10 space-y-8">
-                                                    <p className="text-slate-100 text-2xl font-bold tracking-tight leading-snug keep-all">{r.detail}</p>
-                                                    <p className="text-lg text-slate-400 font-medium italic opacity-90 leading-relaxed border-t border-white/5 pt-8 keep-all font-bold">"{r.synergy}"</p>
+                                                    <div className="space-y-2">
+                                                        <h4 className="text-xs font-black text-white/50 uppercase tracking-[0.3em]">Program Structure</h4>
+                                                        <p className="text-slate-100 text-2xl font-bold tracking-tight leading-snug keep-all">{r.detail}</p>
+                                                    </div>
+                                                    <div className="space-y-4 pt-6 border-t border-white/5">
+                                                        <h4 className="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] flex items-center gap-2"><LucideIcon name="zap" size={14}/> Synergy Boost</h4>
+                                                        <p className="text-lg text-slate-300 font-medium italic opacity-90 leading-relaxed keep-all">"{r.synergy}"</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="glass rounded-[3.5rem] p-12 border-cyan-400/20 shadow-2xl mb-12 text-center">
+
+                                    {/* 이미지의 핵심 가이드 내용 추가 */}
+                                    <div className="space-y-8 mt-12 px-2">
+                                        <h3 className="text-xl font-black text-white italic uppercase border-b-2 border-cyan-400 pb-4 inline-block">Combat Core Guides</h3>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {CORE_GUIDES.map((g, idx) => (
+                                                <div key={idx} className="glass p-8 rounded-[2.5rem] flex gap-6 items-start border-white/5 hover:bg-white/[0.03] transition-all">
+                                                    <div className="bg-cyan-500/10 p-4 rounded-3xl text-cyan-400 shrink-0"><LucideIcon name={g.icon} size={28}/></div>
+                                                    <div className="space-y-2">
+                                                        <h4 className="text-xl font-black text-white italic">{idx + 1}. {g.title}</h4>
+                                                        <p className="text-base text-slate-400 font-medium leading-relaxed keep-all">{g.text}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="glass rounded-[3.5rem] p-12 border-cyan-400/20 shadow-2xl mb-12 text-center mt-10">
                                         <h3 className="text-base font-black text-cyan-400 uppercase tracking-widest mb-10 flex items-center justify-center gap-4"><LucideIcon name="database" size={32} /> System Management</h3>
                                         <div className="grid grid-cols-1 gap-6 px-4">
                                             <button onClick={exportData} className="flex items-center justify-center gap-5 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-8 rounded-[2.5rem] text-xl uppercase transition-all shadow-2xl active:scale-95 transition-all shadow-lg"><LucideIcon name="download" size={32} /> Backup DB (.json)</button>
@@ -600,7 +670,7 @@
                             )}
                         </main>
 
-                        {/* 하단 네비게이션: 고정 레이아웃 */}
+                        {/* 하단 네비게이션 */}
                         <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[96%] max-w-lg glass rounded-[3.5rem] p-2.5 flex gap-2 shadow-[0_50px_100px_rgba(0,0,0,0.95)] z-50 border-white/20 no-scrollbar overflow-x-auto">
                             <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="calendar" size={30} /> CAL</button>
                             <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="message-square" size={30} /> MEMO</button>
@@ -625,20 +695,6 @@
                                         ))}
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {showHelp && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-lg shadow-2xl space-y-12">
-                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-3xl text-center w-full">Manual<button onClick={() => setShowHelp(false)} className="p-4 bg-white/5 rounded-full hover:bg-white/10 transition-all"><LucideIcon name="x" size={32} /></button></div>
-                                <div className="space-y-8 text-xl leading-relaxed text-slate-300 keep-all text-center">
-                                    <p><strong>1. 기록 수정 기능</strong>: 이미 기록된 날짜를 선택하여 루틴을 변경하거나 소감을 수정하면 자동으로 업데이트됩니다.</p>
-                                    <p><strong>2. 코스 추천 기능</strong>: 어제 기록을 분석하여 다음 단계 운동(D1~D3, EVO)에 <span className="text-cyan-400 font-bold">RECOMMENDED</span> 뱃지를 표시합니다.</p>
-                                    <p><strong>3. 오늘 날짜 자동 추적</strong>: 한국 로컬 시간 기준으로 오늘 날짜를 실시간으로 추적하여 강조 표시합니다.</p>
-                                </div>
-                                <button onClick={() => setShowHelp(false)} className="w-full py-8 bg-cyan-600 rounded-[3rem] font-black uppercase text-lg active:scale-95 transition-all shadow-2xl">I Understood</button>
                             </div>
                         </div>
                     )}
