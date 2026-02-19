@@ -32,14 +32,13 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         @keyframes pulse-glow {
             0%, 100% { opacity: 0.15; }
-            50% { opacity: 0.35; }
+            50% { opacity: 0.4; }
         }
         .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        /* 캘린더 셀: 날짜와 라벨 배치를 최적화하여 겹침 방지 */
         .calendar-cell {
-            aspect-ratio: 1 / 1.15;
+            aspect-ratio: 1 / 1.35;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -55,8 +54,15 @@
             position: relative;
         }
 
-        .keep-all { word-keep: all; word-break: keep-all; overflow-wrap: break-word; }
-        .tap-scale:active { transform: scale(0.96); transition: transform 0.1s; }
+        .keep-all { word-break: keep-all; overflow-wrap: break-word; }
+        .tap-scale:active { transform: scale(0.96); transition: transform 0.1s ease; }
+        
+        /* 추천 뱃지 애니메이션 */
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .recommend-badge { animation: bounce-subtle 2s infinite ease-in-out; }
     </style>
 </head>
 <body>
@@ -65,7 +71,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // --- 직관적인 컬러풀 아이콘 (배경 없이 디자인) ---
+        // --- 직관적인 컬러풀 커스텀 아이콘 ---
         const BoxingGloveIcon = ({ size = 20, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
                 <path d="M19,5 C16,2 12,2 9,4 C6,6 4,10 4,13 C4,14.5 4.5,16 5.5,17 L5.5,21 C5.5,22 6.5,23 7.5,23 L14.5,23 C15.5,23 16.5,22 16.5,21 L16.5,19 C18.5,18.5 20.5,17 21.5,14 C22.5,11 21,7 19,5 Z M10,13 L10,7 C10,6.5 10.5,6 11,6 C11.5,6 12,6.5 12,7 L12,13 L10,13 Z M8,13 L8,9 C8,8.5 8.5,8 9,8 C9.5,8 10,8.5 10,9 L10,13 L8,13 Z" />
@@ -97,13 +103,13 @@
             return <span ref={containerRef} className="inline-flex items-center justify-center shrink-0" />;
         };
 
-        // --- 루틴 및 상태 옵션 ---
+        // --- 루틴 및 설정 데이터 ---
         const ROUTINES = [
-            { id: 'day1', label: "D1", name: "하체 파워 보강", color: "from-blue-600 to-indigo-700", hasRingfit: true, hasBoxing: true, synergy: "하체 소진 후 복싱 시 체지방 연소 극대화" },
-            { id: 'day2', label: "D2", name: "순수 심폐 폭격", color: "from-cyan-400 to-blue-500", hasRingfit: false, hasBoxing: true, synergy: "관절 피로를 관리하면서 심박수 유지" },
-            { id: 'day3', label: "D3", name: "자세 및 밸런스", color: "from-orange-500 to-red-600", hasRingfit: true, hasBoxing: true, synergy: "상체를 펴주고 코어 안정성을 확보" },
-            { id: 'rest', label: "EVO", name: "시스템 초회복", color: "from-emerald-500 to-teal-600", hasRingfit: false, hasBoxing: false, synergy: "성장은 휴식 중에 일어납니다." },
-            { id: 'off', label: "OFF", name: "일반 휴식", color: "from-slate-600 to-slate-800", hasRingfit: false, hasBoxing: false, synergy: "에너지 보존 및 부상 방지" },
+            { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", hasRingfit: true, hasBoxing: true, synergy: "하체 소진 후 복싱 시 체지방 연소 극대화" },
+            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", hasRingfit: false, hasBoxing: true, synergy: "관절 피로를 관리하면서 높은 유산소 효과 유도" },
+            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", hasRingfit: true, hasBoxing: true, synergy: "상체를 펴주고 코어 안정성을 높입니다." },
+            { id: 'rest', label: "EVO", name: "시스템 초회복", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", hasRingfit: false, hasBoxing: false, synergy: "성장은 휴식 중에 일어납니다. 초회복 골든타임." },
+            { id: 'off', label: "OFF", name: "일반 휴식", detail: "운동 일정 없는 정지", color: "from-slate-600 to-slate-800", hasRingfit: false, hasBoxing: false, synergy: "컨디션 난조나 사정으로 인한 정지 상태." },
         ];
 
         const COMPLETION_TYPES = [
@@ -116,8 +122,7 @@
             "어제보다 나은 오늘이 당신을 위대하게 만든다.", "한계는 당신의 마음이 결정하는 허상일 뿐이다.", "지금의 고통은 미래의 당신이 보낸 감사장이다.",
             "변명은 칼로리를 태우지 못한다. 일어나라.", "완벽보다 딱 1%만 더 나아가라.", "초회복 중, 신체는 지금 진화하고 있다.",
             "땀방울은 당신이 살아있다는 뜨거운 증거.", "오늘 하지 않으면 내일의 당신이 고생한다.", "포기하고 싶을 때 왜 시작했는지 생각하라.",
-            "근육은 정직한 노력의 산물이다.", "강한 신체에 강한 정신이 깃든다.", "고통은 지나가지만 결과는 남는다.",
-            "성공은 반복되는 작은 노력의 합계다.", "자신을 이기는 것이 가장 큰 승리다.", "지름길은 없다. 오직 반복과 끈기뿐이다."
+            "근육은 정직한 노력의 산물이다.", "강한 신체에 강한 정신이 깃든다.", "고통은 지나가지만 결과는 남는다."
         ];
 
         function App() {
@@ -129,17 +134,28 @@
             const [showHelp, setShowHelp] = useState(false);
             const [chartPeriod, setChartPeriod] = useState('day'); 
             const [toast, setToast] = useState(null);
-            const fileInputRef = useRef(null); // FIXED: Added missing ref
+            const fileInputRef = useRef(null);
             const [tempData, setTempData] = useState({ ringKcal: "", boxingKcal: "", weight: "", note: "" });
 
+            // 한국 로컬 시간 기준 날짜 변환 함수
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const todayStr = useMemo(() => formatDate(new Date()), []);
+            const selectedDateStr = formatDate(selectedDate);
+            const selectedLog = logs[selectedDateStr];
+
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_v27_stable');
+                const saved = localStorage.getItem('workout_logs_v30_final');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
             useEffect(() => {
-                const dateStr = formatDate(selectedDate);
-                const log = logs[dateStr] || {};
+                const log = logs[selectedDateStr] || {};
                 setTempData({
                     ringKcal: log.ringKcal || "",
                     boxingKcal: log.boxingKcal || "",
@@ -148,11 +164,12 @@
                 });
             }, [selectedDate, logs]);
 
-            const formatDate = (date) => date.toISOString().split('T')[0];
-            const selectedDateStr = formatDate(selectedDate);
-            const selectedLog = logs[selectedDateStr];
+            const showMessage = (msg) => {
+                setToast(msg);
+                setTimeout(() => setToast(null), 2500);
+            };
 
-            // 탭 데이터 로직
+            // --- 탭 전환 데이터 가공 로직 ---
             const memoLogs = useMemo(() => {
                 return Object.entries(logs)
                     .filter(([_, data]) => data.note && data.note.trim() !== "")
@@ -163,10 +180,87 @@
                 const start = new Date(selectedDate.getFullYear(), 0, 0);
                 const diff = (selectedDate - start) + ((start.getTimezoneOffset() - selectedDate.getTimezoneOffset()) * 60 * 1000);
                 const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const icons = ["🔥", "⚡", "✨", "🏆", "🌟", "💪", "🎯", "👑"];
-                return `${icons[dayOfYear % 8]} ${BASE_QUOTES[dayOfYear % BASE_QUOTES.length]}`;
+                return BASE_QUOTES[dayOfYear % BASE_QUOTES.length];
             }, [selectedDate]);
 
+            // --- 코스 추천 로직 (D1 -> D2 -> D3 -> EVO -> D1) ---
+            const recommendedRoutineId = useMemo(() => {
+                const prev = new Date(selectedDate);
+                prev.setDate(prev.getDate() - 1);
+                const prevDateStr = formatDate(prev);
+                const prevLog = logs[prevDateStr];
+
+                if (!prevLog) return 'day1';
+
+                switch (prevLog.programId) {
+                    case 'day1': return 'day2';
+                    case 'day2': return 'day3';
+                    case 'day3': return 'rest';
+                    case 'rest': return 'day1';
+                    case 'off': return 'day1';
+                    default: return 'day1';
+                }
+            }, [selectedDate, logs]);
+
+            const saveLog = (dateStr, programId, status = 'full', updates = {}) => {
+                const existing = logs[dateStr] || {};
+                const newLogs = { 
+                    ...logs, 
+                    [dateStr]: { 
+                        ...existing, 
+                        programId: programId || existing.programId, 
+                        status: status || existing.status, 
+                        ...updates, 
+                        updatedAt: new Date().toISOString() 
+                    } 
+                };
+                setLogs(newLogs);
+                localStorage.setItem('workout_logs_v30_final', JSON.stringify(newLogs));
+            };
+
+            const handleManualSave = () => {
+                if (!selectedLog) { showMessage("루틴을 먼저 선택하세요."); return; }
+                saveLog(selectedDateStr, selectedLog.programId, selectedLog.status, tempData);
+                showMessage("기록이 성공적으로 동기화되었습니다.");
+            };
+
+            const deleteLogEntry = () => {
+                const newLogs = { ...logs };
+                delete newLogs[selectedDateStr];
+                setLogs(newLogs);
+                localStorage.setItem('workout_logs_v30_final', JSON.stringify(newLogs));
+                showMessage("데이터 삭제 완료");
+            };
+
+            const exportData = () => {
+                const dataStr = JSON.stringify(logs, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `limit_breaker_v30.json`;
+                link.click();
+                showMessage("백업 파일 생성됨");
+            };
+
+            const importData = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (imported) {
+                            setLogs({ ...logs, ...imported });
+                            localStorage.setItem('workout_logs_v30_final', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("성공적으로 복구되었습니다.");
+                        }
+                    } catch (err) { showMessage("오류 발생"); }
+                };
+                reader.readAsText(file);
+            };
+
+            // 차트 분석 데이터
             const chartAnalytics = useMemo(() => {
                 const sortedDates = Object.keys(logs).sort();
                 if (sortedDates.length === 0) return [];
@@ -188,64 +282,11 @@
                 })).slice(chartPeriod === 'day' ? -14 : -12);
             }, [logs, chartPeriod]);
 
-            // 액션 로직
-            const saveLog = (dateStr, programId, status = 'full', updates = {}) => {
-                const existing = logs[dateStr] || {};
-                const newLogs = { 
-                    ...logs, 
-                    [dateStr]: { ...existing, programId: programId || existing.programId, status: status || existing.status, ...updates, updatedAt: new Date().toISOString() } 
-                };
-                setLogs(newLogs);
-                localStorage.setItem('workout_logs_v27_stable', JSON.stringify(newLogs));
-            };
-
-            const handleManualSave = () => {
-                if (!selectedLog) return;
-                saveLog(selectedDateStr, selectedLog.programId, selectedLog.status, tempData);
-                showMessage("데이터가 성공적으로 저장되었습니다.");
-            };
-
-            const deleteLogEntry = () => {
-                const newLogs = { ...logs };
-                delete newLogs[selectedDateStr];
-                setLogs(newLogs);
-                localStorage.setItem('workout_logs_v27_stable', JSON.stringify(newLogs));
-                showMessage("기록이 삭제되었습니다.");
-            };
-
-            const exportData = () => {
-                const dataStr = JSON.stringify(logs, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `limitbreaker_backup.json`;
-                link.click();
-                showMessage("백업 파일 생성 완료");
-            };
-
-            const importData = (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const imported = JSON.parse(e.target.result);
-                        if (imported) {
-                            setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_v27_stable', JSON.stringify({ ...logs, ...imported }));
-                            showMessage("복구 완료!");
-                        }
-                    } catch (err) { showMessage("오류 발생"); }
-                };
-                reader.readAsText(file);
-            };
-
-            // 차트 컴포넌트
+            // 차트 렌더링 컴포넌트
             const LineChart = ({ data }) => {
                 const width = 300, height = 120;
                 const valid = data.filter(d => d.weight !== null);
-                if (valid.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터 없음</div>;
+                if (valid.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">기록 없음</div>;
                 const values = valid.map(d => parseFloat(d.weight));
                 const min = Math.min(...values) - 0.5, max = Math.max(...values) + 0.5, range = max - min || 1;
                 const points = valid.map((d, i) => ({
@@ -299,13 +340,13 @@
             }, [viewDate]);
 
             return (
-                <div className="min-h-screen text-slate-100 pb-36 overflow-x-hidden selection:bg-cyan-500/30">
+                <div className="min-h-screen text-slate-100 pb-40 overflow-x-hidden selection:bg-cyan-500/30">
                     <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
                         <div className="absolute top-[-5%] right-[-5%] w-[80%] h-[80%] bg-blue-600/10 blur-[150px] animate-pulse-glow rounded-full"></div>
                         <div className="absolute bottom-[-5%] left-[-5%] w-[80%] h-[80%] bg-indigo-600/10 blur-[150px] animate-pulse-glow rounded-full"></div>
                     </div>
 
-                    <div className="w-full max-w-4xl mx-auto px-4 pt-8 md:pt-10">
+                    <div className="w-full max-w-4xl mx-auto px-4 pt-6 md:pt-10">
                         {/* 헤더 */}
                         <header className="flex justify-between items-center mb-8 px-1">
                             <div className="shrink">
@@ -315,7 +356,7 @@
                                 <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-1">NEO-EVO System</p>
                             </div>
                             <div className="glass p-3 rounded-[1.5rem] text-right min-w-[110px] shadow-lg relative border-white/5">
-                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-7 h-7 bg-white/10 rounded-full flex items-center justify-center border border-white/5 active:scale-90"><LucideIcon name="help-circle" size={14} /></button>
+                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-7 h-7 bg-white/10 rounded-full flex items-center justify-center border border-white/5 active:scale-90 shadow-md"><LucideIcon name="info" size={14} /></button>
                                 <div className="text-xl font-black italic leading-none">{Object.keys(logs).filter(d => d.startsWith(viewDate.getFullYear().toString()) && logs[d].programId !== 'off').length} <span className="text-slate-600 text-[10px] font-normal italic">/ 300</span></div>
                                 <div className="mt-2 h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
                                     <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] transition-all duration-1000" style={{width: `${Math.min((Object.keys(logs).length/300)*100, 100)}%`}}></div>
@@ -323,7 +364,7 @@
                             </div>
                         </header>
 
-                        {/* 메인 뷰 전환 제어 */}
+                        {/* 메인 탭 콘텐츠 영역 */}
                         <main className="mb-10">
                             {viewMode === 'calendar' && (
                                 <div className="flex flex-col gap-4 animate-in fade-in duration-500">
@@ -334,11 +375,11 @@
                                                 <LucideIcon name="search" size={14} className="text-slate-500" />
                                             </button>
                                             <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5 shadow-inner">
-                                                <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))} className="p-2 hover:bg-white/10 rounded-lg transition-all"><LucideIcon name="chevron-left" size={20}/></button>
-                                                <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))} className="p-2 hover:bg-white/10 rounded-lg transition-all"><LucideIcon name="chevron-right" size={20}/></button>
+                                                <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))} className="p-2 hover:bg-white/10 rounded-lg transition-all"><LucideIcon name="chevron-left" size={18}/></button>
+                                                <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))} className="p-2 hover:bg-white/10 rounded-lg transition-all"><LucideIcon name="chevron-right" size={18}/></button>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-7 gap-1 sm:gap-3 text-center mb-1">
+                                        <div className="grid grid-cols-7 gap-1 sm:gap-3 text-center mb-3">
                                             {['일','월','화','수','목','금','토'].map((d, i) => (
                                                 <div key={i} className={`text-[12px] font-black ${i===0?'text-red-500':i===6?'text-blue-500':'text-slate-500'} opacity-70 mb-1`}>{d}</div>
                                             ))}
@@ -349,10 +390,15 @@
                                                 const routine = log ? ROUTINES.find(r => r.id === log.programId) : null;
                                                 const completion = log ? COMPLETION_TYPES.find(t => t.id === log.status) : null;
                                                 const isActive = selectedDateStr === dStr;
+                                                const isTodayLocal = todayStr === dStr;
+
                                                 return (
-                                                    <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-[1rem] sm:rounded-[1.5rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/40 border-cyan-400/40' : ''}`}>
-                                                        <span className={`text-base sm:text-3xl font-black leading-none mt-1 ${isActive ? 'text-white' : formatDate(new Date()) === dStr ? 'text-cyan-400' : 'text-slate-400'}`}>{date.getDate()}</span>
-                                                        <div className="flex flex-col items-center gap-0.5 w-full pb-1 mt-auto">
+                                                    <button key={dStr} onClick={() => setSelectedDate(date)} 
+                                                        className={`calendar-cell rounded-[1rem] sm:rounded-[1.5rem] transition-all duration-300 border-2 
+                                                        ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} 
+                                                        ${isTodayLocal && !isActive ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)]' : ''}`}>
+                                                        <span className={`text-base sm:text-3xl font-black leading-none mt-1 ${isActive ? 'text-white' : isTodayLocal ? 'text-cyan-400 underline underline-offset-4' : 'text-slate-400'}`}>{date.getDate()}</span>
+                                                        <div className="flex flex-col items-center gap-1 w-full pb-1 mt-auto">
                                                             {log && routine && (
                                                                 <div className="scale-90 transition-transform drop-shadow-sm">
                                                                     {routine.id === 'rest' ? <LucideIcon name="sparkles" size={12} className="text-emerald-400" /> : routine.id === 'off' ? <LucideIcon name="moon" size={12} className="text-slate-400" /> : completion?.component}
@@ -365,8 +411,7 @@
                                             })}
                                         </div>
 
-                                        {/* 스테이터스 범례 */}
-                                        <div className="flex justify-center flex-wrap gap-x-4 gap-y-2 pt-4 border-t border-white/5 opacity-60">
+                                        <div className="flex justify-center flex-wrap gap-x-4 gap-y-2 pt-4 border-t border-white/5 opacity-70">
                                             {COMPLETION_TYPES.map(t => (
                                                 <div key={t.id} className="flex items-center gap-1.5">
                                                     {t.component}
@@ -388,64 +433,83 @@
                                         <div className={`p-6 bg-gradient-to-br ${selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.color : 'from-slate-800 to-slate-900'} transition-all duration-1000 relative border-b border-white/5 shadow-lg`}>
                                             <p className="text-white/60 text-[11px] font-black mb-1 uppercase tracking-widest opacity-90">{selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
                                             <h2 className="text-2xl sm:text-4xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Combat Briefing"}</h2>
-                                            {selectedLog && <button onClick={deleteLogEntry} className="absolute top-6 right-6 p-2.5 bg-black/20 rounded-full text-red-400 border border-white/5 tap-scale"><LucideIcon name="trash-2" size={20} /></button>}
+                                            {selectedLog && <button onClick={deleteLogEntry} className="absolute top-8 right-8 p-3 bg-black/20 rounded-full text-red-400 border border-white/5 tap-scale shadow-md hover:bg-red-500/20"><LucideIcon name="trash-2" size={20} /></button>}
                                         </div>
                                         <div className="p-6 space-y-10">
                                             <section>
-                                                <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6">Routine Select</h3>
+                                                <h3 className="text-[13px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6 flex items-center justify-between">
+                                                    Routine Select
+                                                    <span className="text-[9px] font-bold text-cyan-500 italic">NEXT MISSION DETECTED</span>
+                                                </h3>
                                                 <div className="grid grid-cols-2 gap-4">
-                                                    {ROUTINES.map(r => (
-                                                        <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-4 rounded-[1.8rem] text-left border-2 transition-all tap-scale ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg scale-[1.02]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}>
-                                                            <p className={`text-[12px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
-                                                            <p className="text-sm font-black text-white uppercase truncate tracking-tight">{r.name}</p>
-                                                        </button>
-                                                    ))}
+                                                    {ROUTINES.map(r => {
+                                                        const isRecommended = r.id === recommendedRoutineId;
+                                                        return (
+                                                            <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} 
+                                                                className={`p-4 rounded-[1.8rem] text-left border-2 transition-all tap-scale relative overflow-hidden 
+                                                                ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg scale-[1.02]' : 'border-white/5 bg-white/5 hover:border-white/10'}
+                                                                ${isRecommended && !selectedLog ? 'ring-2 ring-cyan-500/50' : ''}`}>
+                                                                {isRecommended && !selectedLog && (
+                                                                    <div className="absolute top-0 right-0 bg-cyan-500 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl-lg recommend-badge tracking-tighter">RECOMMENDED</div>
+                                                                )}
+                                                                <p className={`text-[12px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
+                                                                <p className="text-sm font-black text-white uppercase truncate tracking-tight">{r.name}</p>
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </section>
-                                            {selectedLog && selectedLog.programId !== 'rest' && selectedLog.programId !== 'off' && (
-                                                <section className="animate-in slide-in-from-top-4 duration-500">
-                                                    <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6">Completion Status</h3>
-                                                    <div className="grid grid-cols-3 gap-4">
-                                                        {COMPLETION_TYPES.map(t => (
-                                                            <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-6 rounded-[1.8rem] border-2 transition-all tap-scale ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-2xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
-                                                                <div className="mb-2 scale-150">{t.component}</div>
-                                                                <span className="text-[11px] font-black uppercase tracking-widest">{t.label}</span>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </section>
-                                            )}
+
                                             {selectedLog && (
-                                                <section className="space-y-6">
-                                                    <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4">Performance Data</h3>
-                                                    <div className="grid grid-cols-2 gap-5">
-                                                        <div className="space-y-2 relative group">
-                                                            <label className="text-[11px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight <button onClick={()=>setTempData(p=>({...p, weight:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
-                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="00.0" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-xl font-black text-white focus:outline-none focus:ring-2 ring-cyan-400 shadow-inner" />
+                                                <div className="animate-in slide-in-from-top-4 duration-500 space-y-12">
+                                                    {selectedLog.programId !== 'rest' && selectedLog.programId !== 'off' && (
+                                                        <section>
+                                                            <h3 className="text-[13px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6">Completion Status</h3>
+                                                            <div className="grid grid-cols-3 gap-4">
+                                                                {COMPLETION_TYPES.map(t => (
+                                                                    <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-6 rounded-[1.8rem] border-2 transition-all tap-scale ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-2xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
+                                                                        <div className="mb-2 scale-150">{t.component}</div>
+                                                                        <span className="text-[11px] font-black uppercase tracking-widest">{t.label}</span>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </section>
+                                                    )}
+
+                                                    <section className="space-y-6">
+                                                        <h3 className="text-[13px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex items-center justify-between">
+                                                            Update Performance
+                                                            {selectedLog.updatedAt && <span className="text-[9px] font-medium opacity-40">LAST SYNC: {new Date(selectedLog.updatedAt).toLocaleTimeString()}</span>}
+                                                        </h3>
+                                                        <div className="grid grid-cols-2 gap-5">
+                                                            <div className="space-y-2 relative group">
+                                                                <label className="text-[11px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight <button onClick={()=>setTempData(p=>({...p, weight:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
+                                                                <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="00.0" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-xl font-black text-white focus:outline-none focus:ring-2 ring-cyan-400 shadow-inner placeholder:opacity-20" />
+                                                            </div>
+                                                            <div className="space-y-4">
+                                                                {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
+                                                                    <div className="space-y-1 relative group">
+                                                                        <label className="text-[10px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>setTempData(p=>({...p, ringKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
+                                                                        <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500 shadow-inner placeholder:opacity-20" />
+                                                                    </div>
+                                                                )}
+                                                                {ROUTINES.find(r => r.id === selectedLog.programId)?.hasBoxing && (
+                                                                    <div className="space-y-1 relative group">
+                                                                        <label className="text-[10px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>setTempData(p=>({...p, boxingKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
+                                                                        <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500 shadow-inner placeholder:opacity-20" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <div className="space-y-4">
-                                                            {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
-                                                                <div className="space-y-1 relative group">
-                                                                    <label className="text-[10px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>setTempData(p=>({...p, ringKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
-                                                                    <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500 shadow-inner" />
-                                                                </div>
-                                                            )}
-                                                            {ROUTINES.find(r => r.id === selectedLog.programId)?.hasBoxing && (
-                                                                <div className="space-y-1 relative group">
-                                                                    <label className="text-[10px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>setTempData(p=>({...p, boxingKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
-                                                                    <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500 shadow-inner" />
-                                                                </div>
-                                                            )}
+                                                        <div className="space-y-4 pt-4 border-t border-white/5">
+                                                            <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex justify-between">Combat Memo <button onClick={()=>setTempData(p=>({...p, note:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="refresh-cw" size={18}/></button></h3>
+                                                            <textarea value={tempData.note} onChange={(e) => setTempData({...tempData, note: e.target.value})} placeholder="훈련 소감을 기록하거나 수정하세요..." className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-lg text-slate-200 placeholder:text-slate-700 focus:outline-none focus:ring-2 ring-cyan-400 min-h-[160px] resize-none leading-relaxed shadow-inner" />
+                                                            <button onClick={handleManualSave} className="w-full py-6 bg-cyan-600 hover:bg-cyan-500 rounded-[2rem] font-black text-lg uppercase shadow-2xl tap-scale transition-all flex items-center justify-center gap-4 border border-white/10 shadow-lg">
+                                                                <LucideIcon name="save" size={24} /> Update Performance
+                                                            </button>
                                                         </div>
-                                                    </div>
-                                                    <div className="space-y-4 pt-4 border-t border-white/5">
-                                                        <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex justify-between">Combat Memo <button onClick={()=>setTempData(p=>({...p, note:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="refresh-cw" size={18}/></button></h3>
-                                                        <textarea value={tempData.note} onChange={(e) => setTempData({...tempData, note: e.target.value})} placeholder="오늘의 훈련 소감을 기록하세요..." className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-lg text-slate-200 focus:outline-none focus:ring-2 ring-cyan-400 min-h-[160px] resize-none leading-relaxed shadow-inner" />
-                                                        <button onClick={handleManualSave} className="w-full py-6 bg-cyan-600 hover:bg-cyan-500 rounded-[2rem] font-black text-lg uppercase shadow-2xl tap-scale transition-all flex items-center justify-center gap-4 border border-white/10 shadow-lg">
-                                                            <LucideIcon name="save" size={24} /> Update Performance
-                                                        </button>
-                                                    </div>
-                                                </section>
+                                                    </section>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -453,17 +517,17 @@
                             )}
 
                             {viewMode === 'chart' && (
-                                <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
+                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
                                     <div className="flex justify-between items-center px-1">
                                         <h3 className="text-xl font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-3"><LucideIcon name="trending-up" size={28}/> Performance</h3>
                                         <div className="flex bg-white/5 rounded-full p-2 border border-white/10 shadow-inner">
                                             {['day', 'week', 'month', 'year'].map(p => (
-                                                <button key={p} onClick={() => setChartPeriod(p)} className={`px-5 py-2.5 rounded-full text-[12px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
+                                                <button key={p} onClick={() => setChartPeriod(p)} className={`px-5 py-2.5 rounded-full text-[14px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
                                             ))}
                                         </div>
                                     </div>
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl">
-                                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-10 text-center">Weight Trends (kg)</h4>
+                                        <h4 className="text-xl font-black text-white uppercase tracking-tight mb-10 text-center">Weight Trends (kg)</h4>
                                         <div className="chart-container"><LineChart data={chartAnalytics} /></div>
                                     </div>
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl">
@@ -536,7 +600,7 @@
                             )}
                         </main>
 
-                        {/* 하단 네비게이션 */}
+                        {/* 하단 네비게이션: 고정 레이아웃 */}
                         <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[96%] max-w-lg glass rounded-[3.5rem] p-2.5 flex gap-2 shadow-[0_50px_100px_rgba(0,0,0,0.95)] z-50 border-white/20 no-scrollbar overflow-x-auto">
                             <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="calendar" size={30} /> CAL</button>
                             <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="message-square" size={30} /> MEMO</button>
@@ -570,9 +634,9 @@
                             <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-lg shadow-2xl space-y-12">
                                 <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-3xl text-center w-full">Manual<button onClick={() => setShowHelp(false)} className="p-4 bg-white/5 rounded-full hover:bg-white/10 transition-all"><LucideIcon name="x" size={32} /></button></div>
                                 <div className="space-y-8 text-xl leading-relaxed text-slate-300 keep-all text-center">
-                                    <p><strong>1. 아이콘 식별</strong>: 트로피(전체 완수), 링콘(링피트), 글러브(복싱) 기호로 매일의 수행 상태를 기록하세요.</p>
-                                    <p><strong>2. 모든 기능 복구</strong>: CHART, MEMO, DB 탭의 출력 오류를 해결하여 정상 이용 가능합니다.</p>
-                                    <p><strong>3. 365일 명언</strong>: 날짜 기반 시스템으로 매일 새로운 동기부여를 제공합니다.</p>
+                                    <p><strong>1. 기록 수정 기능</strong>: 이미 기록된 날짜를 선택하여 루틴을 변경하거나 소감을 수정하면 자동으로 업데이트됩니다.</p>
+                                    <p><strong>2. 코스 추천 기능</strong>: 어제 기록을 분석하여 다음 단계 운동(D1~D3, EVO)에 <span className="text-cyan-400 font-bold">RECOMMENDED</span> 뱃지를 표시합니다.</p>
+                                    <p><strong>3. 오늘 날짜 자동 추적</strong>: 한국 로컬 시간 기준으로 오늘 날짜를 실시간으로 추적하여 강조 표시합니다.</p>
                                 </div>
                                 <button onClick={() => setShowHelp(false)} className="w-full py-8 bg-cyan-600 rounded-[3rem] font-black uppercase text-lg active:scale-95 transition-all shadow-2xl">I Understood</button>
                             </div>
