@@ -51,7 +51,7 @@
 
         .chart-container {
             width: 100%;
-            height: 220px;
+            height: 240px;
             position: relative;
         }
     </style>
@@ -120,7 +120,7 @@
             const [tempData, setTempData] = useState({ ringKcal: "", boxingKcal: "", weight: "", note: "" });
 
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_final_v9_stacked');
+                const saved = localStorage.getItem('workout_logs_final_v10_fixed');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
@@ -168,7 +168,7 @@
                     } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_final_v10_fixed', JSON.stringify(newLogs));
             };
 
             const handleManualSave = () => {
@@ -195,7 +195,7 @@
                 const newLogs = { ...logs };
                 delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_final_v10_fixed', JSON.stringify(newLogs));
                 showMessage("기록이 삭제되었습니다.");
             };
 
@@ -205,7 +205,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `limitbreaker_v9_backup.json`;
+                link.download = `limitbreaker_v10_backup.json`;
                 link.click();
                 showMessage("백업 파일 생성됨");
             };
@@ -219,15 +219,15 @@
                         const imported = JSON.parse(e.target.result);
                         if (imported) {
                             setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify({ ...logs, ...imported }));
-                            showMessage("복구 완료!");
+                            localStorage.setItem('workout_logs_final_v10_fixed', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("데이터 복구 완료!");
                         }
                     } catch (err) { showMessage("오류 발생"); }
                 };
                 reader.readAsText(file);
             };
 
-            // 차트 분석 로직 개선 (단일 데이터 대응)
+            // 차트 분석 로직 (폰트 크기 상향을 고려한 레이아웃 유지)
             const chartAnalytics = useMemo(() => {
                 const sortedDates = Object.keys(logs).sort();
                 if (sortedDates.length === 0) return [];
@@ -268,13 +268,13 @@
                 return chartPeriod === 'day' ? dataList.slice(-14) : dataList.slice(-12);
             }, [logs, chartPeriod]);
 
-            // SVG 차트 컴포넌트 개선
+            // SVG 차트 컴포넌트 (글자 크기 상향 조정)
             const LineChart = ({ data }) => {
-                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터 없음</div>;
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-sm italic">데이터 없음</div>;
                 const width = 300;
                 const height = 120;
                 const validWeights = data.filter(d => d.weight !== null);
-                if (validWeights.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">체중 기록 없음</div>;
+                if (validWeights.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-sm italic">체중 기록 없음</div>;
                 
                 const values = validWeights.map(d => parseFloat(d.weight));
                 const min = values.length > 1 ? Math.min(...values) - 0.5 : values[0] - 1;
@@ -290,13 +290,13 @@
                 const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
 
                 return (
-                    <svg viewBox={`0 0 ${width} ${height + 25}`} className="w-full h-full overflow-visible">
-                        {points.length > 1 && <polyline points={polylinePoints} fill="none" stroke="#22d3ee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
+                    <svg viewBox={`0 0 ${width} ${height + 35}`} className="w-full h-full overflow-visible">
+                        {points.length > 1 && <polyline points={polylinePoints} fill="none" stroke="#22d3ee" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
                         {points.map((p, i) => (
                             <g key={i}>
-                                <circle cx={p.x} cy={p.y} r="3" fill="#fff" stroke="#22d3ee" strokeWidth="2" />
-                                <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize="9" fontWeight="900" fill="#22d3ee" className="drop-shadow-sm">{p.val}</text>
-                                <text x={p.x} y={height + 15} textAnchor="middle" fontSize="7" fill="#64748b">{p.label}</text>
+                                <circle cx={p.x} cy={p.y} r="4" fill="#fff" stroke="#22d3ee" strokeWidth="2" />
+                                <text x={p.x} y={p.y - 12} textAnchor="middle" fontSize="12" fontWeight="900" fill="#22d3ee">{p.val}</text>
+                                <text x={p.x} y={height + 20} textAnchor="middle" fontSize="10" fontWeight="700" fill="#64748b">{p.label}</text>
                             </g>
                         ))}
                     </svg>
@@ -304,32 +304,26 @@
             };
 
             const BarChart = ({ data }) => {
-                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터 없음</div>;
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-sm italic">데이터 없음</div>;
                 const width = 300;
-                const height = 140;
+                const height = 150;
                 const maxKcal = Math.max(...data.map(d => d.total), 500);
-                const barWidth = Math.min((width / data.length) * 0.7, 30);
+                const barWidth = Math.min((width / data.length) * 0.7, 35);
 
                 return (
-                    <svg viewBox={`0 0 ${width} ${height + 25}`} className="w-full h-full overflow-visible">
+                    <svg viewBox={`0 0 ${width} ${height + 35}`} className="w-full h-full overflow-visible">
                         {data.map((d, i) => {
                             const x = (data.length > 1) ? (i / (data.length - 1)) * (width - barWidth) : (width - barWidth) / 2;
                             const rH = (d.ring / maxKcal) * height;
                             const bH = (d.box / maxKcal) * height;
                             return (
                                 <g key={i}>
-                                    {/* Stacked Bars */}
-                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" className="shadow-sm" />
-                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" className="shadow-sm" />
-                                    
-                                    {/* Labels */}
-                                    <text x={x + barWidth/2} y={height + 15} textAnchor="middle" fontSize="7" fill="#64748b" fontWeight="bold">{d.label}</text>
-                                    
-                                    {/* Values Inside or Above */}
-                                    {d.box > 50 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 3} textAnchor="middle" fontSize="6" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
-                                    {d.ring > 50 && <text x={x + barWidth/2} y={height - (rH/2) + 3} textAnchor="middle" fontSize="6" fontWeight="900" fill="#fff">{Math.round(d.ring)}</text>}
-                                    
-                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 6} textAnchor="middle" fontSize="8" fontWeight="900" fill="#22d3ee" className="drop-shadow-md">{Math.round(d.total)}</text>}
+                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" />
+                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" />
+                                    <text x={x + barWidth/2} y={height + 20} textAnchor="middle" fontSize="9" fill="#64748b" fontWeight="bold">{d.label}</text>
+                                    {d.box > 60 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 4} textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
+                                    {d.ring > 60 && <text x={x + barWidth/2} y={height - (rH/2) + 4} textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{Math.round(d.ring)}</text>}
+                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 10} textAnchor="middle" fontSize="11" fontWeight="900" fill="#22d3ee" className="drop-shadow-md">{Math.round(d.total)}</text>}
                                 </g>
                             );
                         })}
@@ -343,6 +337,12 @@
             for (let i = 0; i < firstDayOfMonth; i++) calendarDays.push(null);
             for (let i = 1; i <= daysInMonth; i++) calendarDays.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), i));
 
+            const memoLogs = useMemo(() => {
+                return Object.entries(logs)
+                    .filter(([_, data]) => data.note && data.note.trim() !== "")
+                    .sort((a, b) => b[0].localeCompare(a[0]));
+            }, [logs]);
+
             return (
                 <div className="min-h-screen text-slate-100 pb-36 overflow-x-hidden selection:bg-cyan-500/30">
                     <div className="fixed inset-0 pointer-events-none -z-10">
@@ -355,11 +355,11 @@
                         <header className="flex justify-between items-center mb-8 px-1">
                             <div>
                                 <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter leading-tight uppercase text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">Limit<br/><span className="text-cyan-400">Breaker</span></h1>
-                                <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-1">NEO-EVO System</p>
+                                <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-1 tracking-widest">NEO-EVO System</p>
                             </div>
                             <div className="glass p-4 sm:p-5 rounded-[2rem] text-right min-w-[100px] relative">
                                 <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-7 h-7 bg-white/10 rounded-full flex items-center justify-center text-xs border border-white/10 hover:bg-cyan-500 hover:text-white transition-all"><LucideIcon name="help-circle" size={14} /></button>
-                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">{viewDate.getFullYear()} Year</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">{viewDate.getFullYear()} Core</p>
                                 <div className="text-2xl sm:text-3xl font-black italic leading-none">{yearLogsCount} <span className="text-slate-600 text-xs font-normal">/ 300</span></div>
                                 <div className="mt-2 h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
                                     <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: `${Math.min((yearLogsCount/300)*100, 100)}%`}}></div>
@@ -371,7 +371,7 @@
                             <div className="flex flex-col gap-5 animate-in fade-in duration-500">
                                 <div className="glass rounded-[2.5rem] p-4 sm:p-8 shadow-2xl">
                                     <div className="flex justify-between items-center mb-6">
-                                        <button onClick={() => setShowNavModal(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-sm sm:text-xl font-black italic">
+                                        <button onClick={() => setShowNavModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-sm sm:text-xl font-black italic">
                                             {viewDate.getFullYear()} <span className="text-cyan-400">{viewDate.getMonth() + 1}월</span>
                                             <LucideIcon name="search" size={14} className="text-slate-500" />
                                         </button>
@@ -382,7 +382,7 @@
                                     </div>
                                     <div className="grid grid-cols-7 gap-1.5 sm:gap-3 text-center mb-3">
                                         {['일','월','화','수','목','금','토'].map((d, i) => (
-                                            <div key={i} className={`text-[12px] font-black ${i===0?'text-red-500':i===6?'text-blue-500':'text-slate-500'} opacity-70 mb-1`}>{d}</div>
+                                            <div key={i} className={`text-[12px] font-black ${i===0?'text-red-500':i===6?'text-blue-400':'text-slate-500'} opacity-70 mb-1`}>{d}</div>
                                         ))}
                                         {calendarDays.map((date, i) => {
                                             if (!date) return <div key={`empty-${i}`} className="aspect-square opacity-0"></div>;
@@ -392,7 +392,7 @@
                                             const completion = log ? COMPLETION_TYPES.find(t => t.id === log.status) : null;
                                             const isActive = selectedDateStr === dStr;
                                             return (
-                                                <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-xl sm:rounded-[1.5rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/30 border-cyan-400/40' : ''}`}>
+                                                <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-[1.2rem] sm:rounded-[1.8rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-[0_15px_30px_rgba(34,211,238,0.4)] scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/30 border-cyan-400/40' : ''}`}>
                                                     <span className={`text-base sm:text-2xl font-black ${isActive ? 'text-white' : formatDate(new Date()) === dStr ? 'text-cyan-400' : 'text-slate-400'}`}>{date.getDate()}</span>
                                                     {log && (
                                                         <div className={`absolute -top-1 -right-1 p-1 rounded-full text-white shadow-lg border border-white/20 ${routine?.id === 'rest' ? 'bg-emerald-500' : routine?.id === 'off' ? 'bg-slate-500' : (completion?.color || 'bg-slate-500')}`}>
@@ -437,7 +437,7 @@
                                             <div className="grid grid-cols-2 gap-3.5">
                                                 {ROUTINES.map(r => (
                                                     <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-5 rounded-2xl text-left border-2 transition-all active:scale-95 ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg' : 'border-white/5 bg-white/5'}`}>
-                                                        <p className={`text-[10px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
+                                                        <p className={`text-[11px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
                                                         <p className="text-[14px] font-black text-white uppercase truncate tracking-tight">{r.name}</p>
                                                     </button>
                                                 ))}
@@ -446,12 +446,27 @@
 
                                         {selectedLog && (
                                             <div className="animate-in slide-in-from-top-2 duration-300 space-y-8">
+                                                {/* 수행 상태 선택 복구 및 최상단 배치 */}
+                                                {selectedLog.programId !== 'rest' && selectedLog.programId !== 'off' && (
+                                                    <section>
+                                                        <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3 mb-5">Completion Status</h3>
+                                                        <div className="grid grid-cols-3 gap-3.5">
+                                                            {COMPLETION_TYPES.map(t => (
+                                                                <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-5 rounded-[1.5rem] border-2 transition-all active:scale-95 ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-2xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
+                                                                    <LucideIcon name={t.icon} size={28} className="mb-2" />
+                                                                    <span className="text-[11px] font-black uppercase tracking-widest">{t.label}</span>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                )}
+
                                                 <section className="space-y-5">
                                                     <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3">Performance Data</h3>
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div className="space-y-2 relative group">
                                                             <label className="text-[10px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight <button onClick={()=>clearField('weight')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={12}/></button></label>
-                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="kg" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-base font-black text-white focus:outline-none focus:ring-2 ring-cyan-400" />
+                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="kg" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-base font-black text-white focus:outline-none focus:ring-2 ring-cyan-400 shadow-inner" />
                                                         </div>
                                                         <div className="space-y-4">
                                                             {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
@@ -488,15 +503,15 @@
                             <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex justify-between items-center px-1">
                                     <h3 className="text-sm font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2"><LucideIcon name="trending-up" size={18}/> Performance Analytics</h3>
-                                    <div className="flex bg-white/5 rounded-full p-1 border border-white/5">
+                                    <div className="flex bg-white/5 rounded-full p-1 border border-white/5 shadow-inner">
                                         {['day', 'week', 'month', 'year'].map(p => (
-                                            <button key={p} onClick={() => setChartPeriod(p)} className={`px-3 py-1.5 rounded-full text-[10px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white' : 'text-slate-500 hover:text-white'}`}>{p[0]}</button>
+                                            <button key={p} onClick={() => setChartPeriod(p)} className={`px-4 py-1.5 rounded-full text-[10px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-md' : 'text-slate-500 hover:text-white'}`}>{p[0]}</button>
                                         ))}
                                     </div>
                                 </div>
                                 
                                 <div className="glass rounded-[2.5rem] p-6 border-white/5 shadow-xl">
-                                    <h4 className="text-xs font-black text-white uppercase tracking-tight mb-8">Weight Trends (kg)</h4>
+                                    <h4 className="text-sm font-black text-white uppercase tracking-tight mb-8">Weight Trends (kg)</h4>
                                     <div className="chart-container">
                                         <LineChart data={chartAnalytics} />
                                     </div>
@@ -504,10 +519,10 @@
 
                                 <div className="glass rounded-[2.5rem] p-6 border-white/5 shadow-xl">
                                     <div className="flex justify-between items-center mb-8">
-                                        <h4 className="text-xs font-black text-white uppercase tracking-tight">Calories Burnt (kcal)</h4>
+                                        <h4 className="text-sm font-black text-white uppercase tracking-tight">Calories Burnt (kcal)</h4>
                                         <div className="flex gap-4">
-                                            <div className="flex items-center gap-1.5 text-[8px] font-black text-orange-500 uppercase"><div className="w-2 h-2 rounded-full bg-orange-500"></div> RF</div>
-                                            <div className="flex items-center gap-1.5 text-[8px] font-black text-blue-500 uppercase"><div className="w-2 h-2 rounded-full bg-blue-500"></div> BX</div>
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest"><div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div> RF</div>
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest"><div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> BX</div>
                                         </div>
                                     </div>
                                     <div className="chart-container mb-4">
@@ -571,8 +586,8 @@
                                         </div>
                                     ))}
                                 </div>
-                                <div className="glass rounded-[2.5rem] p-8 border-cyan-400/20 shadow-2xl mb-8">
-                                    <h3 className="text-xs font-black text-cyan-400 uppercase tracking-widest mb-6 flex items-center gap-2"><LucideIcon name="database" size={18} /> System Management</h3>
+                                <div className="glass rounded-[2.5rem] p-8 border-cyan-400/20 shadow-2xl mb-8 text-center">
+                                    <h3 className="text-xs font-black text-cyan-400 uppercase tracking-widest mb-6 flex items-center justify-center gap-2"><LucideIcon name="database" size={18} /> System Management</h3>
                                     <div className="grid grid-cols-1 gap-4">
                                         <button onClick={exportData} className="flex items-center justify-center gap-3 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all shadow-xl active:scale-95"><LucideIcon name="download" size={20} /> Backup Database (.json)</button>
                                         <button onClick={() => fileInputRef.current.click()} className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all border border-white/5"><LucideIcon name="upload" size={20} /> Restore Database File</button>
@@ -597,7 +612,7 @@
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
                             <div className="glass border-white/20 rounded-[3rem] p-10 w-full max-w-xs shadow-[0_0_100px_rgba(0,0,0,0.5)]">
                                 <div className="flex justify-between items-center mb-8 text-cyan-400 font-black italic uppercase tracking-widest text-lg">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-2 bg-white/5 rounded-full border border-white/5"><LucideIcon name="x" size={24} /></button></div>
-                                <div className="space-y-8">
+                                <div className="space-y-8 text-center">
                                     <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-6 text-3xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
                                         {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y} className="bg-slate-950" key={y}>{y} YEAR</option>)}
                                     </select>
@@ -616,9 +631,9 @@
                             <div className="glass border-white/20 rounded-[3rem] p-8 w-full max-w-sm shadow-2xl space-y-8">
                                 <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-lg">Manual<button onClick={() => setShowHelp(false)} className="p-2 bg-white/5 rounded-full"><LucideIcon name="x" size={20} /></button></div>
                                 <div className="space-y-6 text-sm leading-relaxed text-slate-300">
-                                    <p><strong>1. 차트 필터</strong>: CHART 탭 상단의 <span className="text-cyan-400">D, W, M, Y</span> 버튼으로 기간별 통계를 확인하세요. 데이터가 1개만 있어도 이제 정상 표시됩니다.</p>
-                                    <p><strong>2. 개별 칼로리</strong>: 바 차트 안에 <span className="text-orange-500">링피트</span>와 <span className="text-blue-500">복싱</span> 수치가 각각 숫자로 표기되며, 전체 합계는 바 위에 표시됩니다.</p>
-                                    <p><strong>3. 기록 수정</strong>: 입력창 우측의 X 버튼으로 내용을 지우거나, 상단 휴지통 아이콘으로 전체 기록을 삭제할 수 있습니다.</p>
+                                    <p><strong>1. 차트 폰트 강화</strong>: 차트의 수치와 라벨 폰트 크기를 키워 시인성을 높였습니다.</p>
+                                    <p><strong>2. 수행 상태 선택 복구</strong>: 루틴 선택 시 <span className="text-cyan-400">FULL, RING, BOX</span> 옵션이 다시 나타납니다. 컨디션에 맞춰 선택해 주세요.</p>
+                                    <p><strong>3. 데이터 누적</strong>: 모든 기록은 바 차트 내에 쌓여서 합계와 개별 수치를 동시에 보여줍니다.</p>
                                 </div>
                                 <button onClick={() => setShowHelp(false)} className="w-full py-5 bg-cyan-600 rounded-[1.8rem] font-black uppercase text-xs active:scale-95 transition-all">Understood</button>
                             </div>
