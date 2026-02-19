@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LIMIT BREAKER: NEO-EVO</title>
     
-    <!-- 모바일 앱 설치 최적화 메타 태그 -->
+    <!-- 모바일 앱 설치 최적화 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10542/10542456.png">
     
-    <!-- 1. React & ReactDOM (Stable Core) -->
+    <!-- 1. React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- 2. Babel (JSX Compiler) -->
+    <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- 3. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 4. Lucide Icons (Browser version) -->
+    <!-- 4. Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -49,11 +49,10 @@
             position: relative;
         }
 
-        /* 폰트 크기 모바일 최적화 (갤럭시 폴드 4 커버 화면 대응) */
-        @media (max-width: 400px) {
-            .mobile-label { font-size: 0.7rem; }
-            .mobile-title { font-size: 1.1rem; }
-            .mobile-text { font-size: 0.8rem; }
+        .chart-container {
+            width: 100%;
+            height: 220px;
+            position: relative;
         }
     </style>
 </head>
@@ -66,7 +65,6 @@
         // --- Lucide Icon Wrapper ---
         const LucideIcon = ({ name, size = 20, className = "" }) => {
             const containerRef = useRef(null);
-
             useEffect(() => {
                 if (containerRef.current && window.lucide) {
                     containerRef.current.innerHTML = ''; 
@@ -79,64 +77,16 @@
                     window.lucide.createIcons({ attrs: { strokeWidth: 2.5 } });
                 }
             }, [name, size, className]);
-
-            return <span ref={containerRef} className="inline-flex items-center justify-center" />;
+            return <span ref={containerRef} className="inline-flex items-center justify-center shrink-0" />;
         };
 
         // --- 루틴 데이터 ---
         const ROUTINES = [
-            { 
-                id: 'day1', 
-                label: "D1", 
-                name: "하체 파워 보강", 
-                detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", 
-                color: "from-blue-600 to-indigo-700", 
-                glow: "text-blue-400", 
-                synergy: "스쿼트와 런지로 하체 근력을 먼저 소진한 뒤 복싱을 진행하면 지지력이 좋아지고 체지방 연소가 극대화됩니다." 
-            },
-            { 
-                id: 'day2', 
-                label: "D2", 
-                name: "순수 심폐 폭격", 
-                detail: "피트니스 복싱 3 고강도(50분) 단독 수행", 
-                color: "from-cyan-400 to-blue-500", 
-                glow: "text-cyan-300", 
-                synergy: "링피트를 제외하여 관절 피로도를 관리하면서, 높은 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다." 
-            },
-            { 
-                id: 'day3', 
-                label: "D3", 
-                name: "자세 및 밸런스", 
-                detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", 
-                color: "from-orange-500 to-red-600", 
-                glow: "text-orange-400", 
-                synergy: "복싱으로 굳기 쉬운 등과 어깨를 링피트로 펴주고, 코어를 잡아 펀치의 안정성을 높입니다." 
-            },
-            { 
-                id: 'rest', 
-                label: "EVO", 
-                name: "시스템 재정비", 
-                detail: "완전 휴식 (Recovery)", 
-                color: "from-emerald-500 to-teal-600", 
-                glow: "text-emerald-400", 
-                synergy: "고강도 운동 후 근육이 재생되는 필수 시간입니다. 가벼운 산책이나 스트레칭만 권장하는 초회복 단계입니다." 
-            },
-            { 
-                id: 'off', 
-                label: "OFF", 
-                name: "일반 휴식", 
-                detail: "별도의 운동 일정 없는 완전 정지", 
-                color: "from-slate-600 to-slate-800", 
-                glow: "text-slate-400", 
-                synergy: "컨디션 난조나 개인 사정으로 인한 중립 상태입니다. 에너지를 보존하고 다음 사이클을 준비하세요." 
-            },
-        ];
-
-        const CORE_GUIDES = [
-            { icon: "arrow-right-circle", title: "운동 순서", desc: "반드시 링피트를 먼저 수행하여 탄수화물을 소진하고 복싱에서 체지방 연소를 극대화하세요." },
-            { icon: "shield-alert", title: "관절 및 피로 관리", desc: "고강도 복싱 부하를 고려해 링피트는 하체/코어 위주로 수행하고 부상을 예방하세요." },
-            { icon: "zap", title: "영양 및 회복", desc: "운동 후 즉시 단백질을 섭취하고, 휴식일에는 충분한 수면으로 근손실을 방지하세요." },
-            { icon: "award", title: "링피트의 보조 역할", desc: "복싱이 메인입니다. 링피트는 쓰지 않는 근육을 활성화하는 데 집중하세요." }
+            { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", glow: "text-blue-400", synergy: "하체 소진 후 복합 운동을 진행하면 지지력이 좋아지고 체지방 연소가 극대화됩니다.", hasRingfit: true, hasBoxing: true },
+            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", glow: "text-cyan-300", synergy: "링피트를 제외하여 관절 피로도를 관리하면서, 높은 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다.", hasRingfit: false, hasBoxing: true },
+            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", glow: "text-orange-400", synergy: "복싱의 웅크린 자세로 굳기 쉬운 등과 어깨를 링피트로 펴주고, 코어를 잡아 펀치의 안정성을 높입니다.", hasRingfit: true, hasBoxing: true },
+            { id: 'rest', label: "EVO", name: "시스템 재정비", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", glow: "text-emerald-400", synergy: "고강도 운동 후 근육이 재생되는 필수 시간입니다. 가벼운 산책이나 스트레칭만 권장하는 초회복 단계입니다.", hasRingfit: false, hasBoxing: false },
+            { id: 'off', label: "OFF", name: "일반 휴식", detail: "별도의 운동 일정 없는 완전 정지", color: "from-slate-600 to-slate-800", glow: "text-slate-400", synergy: "컨디션 난조나 개인 사정으로 인한 중립 상태입니다. 에너지를 보존하고 다음 사이클을 준비하세요.", hasRingfit: false, hasBoxing: false },
         ];
 
         const COMPLETION_TYPES = [
@@ -163,24 +113,36 @@
             const [selectedDate, setSelectedDate] = useState(new Date());
             const [showNavModal, setShowNavModal] = useState(false);
             const [showHelp, setShowHelp] = useState(false);
-            const [tempNote, setTempNote] = useState("");
+            const [chartPeriod, setChartPeriod] = useState('day'); 
             const [toast, setToast] = useState(null);
             const fileInputRef = useRef(null);
 
+            const [tempData, setTempData] = useState({ ringKcal: "", boxingKcal: "", weight: "", note: "" });
+
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_final_v6_image');
+                const saved = localStorage.getItem('workout_logs_final_v9_stacked');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
             useEffect(() => {
                 const dateStr = formatDate(selectedDate);
-                setTempNote(logs[dateStr]?.note || "");
+                const log = logs[dateStr] || {};
+                setTempData({
+                    ringKcal: log.ringKcal || "",
+                    boxingKcal: log.boxingKcal || "",
+                    weight: log.weight || "",
+                    note: log.note || ""
+                });
             }, [selectedDate, logs]);
 
             const showMessage = (msg) => {
                 setToast(msg);
-                setTimeout(() => setToast(null), 3000);
+                setTimeout(() => setToast(null), 2500);
             };
+
+            const formatDate = (date) => date.toISOString().split('T')[0];
+            const selectedDateStr = formatDate(selectedDate);
+            const selectedLog = logs[selectedDateStr];
 
             const yearLogsCount = useMemo(() => {
                 const yearStr = viewDate.getFullYear().toString();
@@ -193,34 +155,48 @@
                 return MOTIVATION_QUOTES[(day + month) % MOTIVATION_QUOTES.length];
             }, [selectedDate]);
 
-            const saveLog = (dateStr, programId, status = 'full', note = null) => {
+            const saveLog = (dateStr, programId, status = 'full', updates = {}) => {
                 const existing = logs[dateStr] || {};
                 const newLogs = { 
                     ...logs, 
                     [dateStr]: { 
                         ...existing,
-                        programId, 
-                        status, 
-                        note: note !== null ? note : (existing.note || ""),
+                        programId: programId || existing.programId, 
+                        status: status || existing.status, 
+                        ...updates,
                         updatedAt: new Date().toISOString() 
                     } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v6_image', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify(newLogs));
             };
 
-            const saveNoteOnly = () => {
+            const handleManualSave = () => {
                 const dateStr = formatDate(selectedDate);
-                const existing = logs[dateStr];
-                if (!existing) return;
-                saveLog(dateStr, existing.programId, existing.status, tempNote);
+                const log = logs[dateStr];
+                if (!log) {
+                    showMessage("루틴을 먼저 선택해 주세요.");
+                    return;
+                }
+                saveLog(dateStr, log.programId, log.status, {
+                    ringKcal: tempData.ringKcal,
+                    boxingKcal: tempData.boxingKcal,
+                    weight: tempData.weight,
+                    note: tempData.note
+                });
+                showMessage("기록이 업데이트되었습니다.");
             };
 
-            const deleteLog = (dateStr) => {
+            const clearField = (field) => {
+                setTempData(prev => ({ ...prev, [field]: "" }));
+            };
+
+            const deleteLogEntry = () => {
                 const newLogs = { ...logs };
-                delete newLogs[dateStr];
+                delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v6_image', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify(newLogs));
+                showMessage("기록이 삭제되었습니다.");
             };
 
             const exportData = () => {
@@ -229,9 +205,9 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `workout_backup.json`;
+                link.download = `limitbreaker_v9_backup.json`;
                 link.click();
-                showMessage("백업 파일 생성 완료");
+                showMessage("백업 파일 생성됨");
             };
 
             const importData = (event) => {
@@ -240,33 +216,132 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
-                        const importedLogs = JSON.parse(e.target.result);
-                        if (importedLogs) {
-                            const combined = { ...logs, ...importedLogs };
-                            setLogs(combined);
-                            localStorage.setItem('workout_logs_final_v6_image', JSON.stringify(combined));
-                            showMessage("데이터 복구 완료!");
+                        const imported = JSON.parse(e.target.result);
+                        if (imported) {
+                            setLogs({ ...logs, ...imported });
+                            localStorage.setItem('workout_logs_final_v9_stacked', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("복구 완료!");
                         }
                     } catch (err) { showMessage("오류 발생"); }
                 };
                 reader.readAsText(file);
             };
 
-            const formatDate = (date) => date.toISOString().split('T')[0];
-            const selectedDateStr = formatDate(selectedDate);
-            const selectedLog = logs[selectedDateStr];
+            // 차트 분석 로직 개선 (단일 데이터 대응)
+            const chartAnalytics = useMemo(() => {
+                const sortedDates = Object.keys(logs).sort();
+                if (sortedDates.length === 0) return [];
+
+                const getWeekNumber = (d) => {
+                    const date = new Date(d);
+                    date.setHours(0,0,0,0);
+                    date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+                    const yearStart = new Date(date.getFullYear(), 0, 1);
+                    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+                };
+
+                let aggregated = {};
+
+                sortedDates.forEach(dateStr => {
+                    const log = logs[dateStr];
+                    let key = dateStr;
+                    if (chartPeriod === 'week') key = `W${getWeekNumber(dateStr)}`;
+                    if (chartPeriod === 'month') key = dateStr.slice(0, 7);
+                    if (chartPeriod === 'year') key = dateStr.slice(0, 4);
+
+                    if (!aggregated[key]) {
+                        aggregated[key] = { ring: 0, box: 0, weights: [], label: key };
+                    }
+                    aggregated[key].ring += parseFloat(log.ringKcal) || 0;
+                    aggregated[key].box += parseFloat(log.boxingKcal) || 0;
+                    if (log.weight) aggregated[key].weights.push(parseFloat(log.weight));
+                });
+
+                const dataList = Object.values(aggregated).map(item => ({
+                    label: item.label.includes('-') ? item.label.split('-').pop() : item.label,
+                    ring: item.ring,
+                    box: item.box,
+                    total: item.ring + item.box,
+                    weight: item.weights.length > 0 ? (item.weights.reduce((a, b) => a + b, 0) / item.weights.length).toFixed(1) : null
+                }));
+
+                return chartPeriod === 'day' ? dataList.slice(-14) : dataList.slice(-12);
+            }, [logs, chartPeriod]);
+
+            // SVG 차트 컴포넌트 개선
+            const LineChart = ({ data }) => {
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터 없음</div>;
+                const width = 300;
+                const height = 120;
+                const validWeights = data.filter(d => d.weight !== null);
+                if (validWeights.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">체중 기록 없음</div>;
+                
+                const values = validWeights.map(d => parseFloat(d.weight));
+                const min = values.length > 1 ? Math.min(...values) - 0.5 : values[0] - 1;
+                const max = values.length > 1 ? Math.max(...values) + 0.5 : values[0] + 1;
+                const range = max - min || 1;
+                
+                const points = validWeights.map((d, i) => {
+                    const x = validWeights.length > 1 ? (i / (validWeights.length - 1)) * width : width / 2;
+                    const y = height - ((parseFloat(d.weight) - min) / range) * height;
+                    return { x, y, val: d.weight, label: d.label };
+                });
+
+                const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+
+                return (
+                    <svg viewBox={`0 0 ${width} ${height + 25}`} className="w-full h-full overflow-visible">
+                        {points.length > 1 && <polyline points={polylinePoints} fill="none" stroke="#22d3ee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
+                        {points.map((p, i) => (
+                            <g key={i}>
+                                <circle cx={p.x} cy={p.y} r="3" fill="#fff" stroke="#22d3ee" strokeWidth="2" />
+                                <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize="9" fontWeight="900" fill="#22d3ee" className="drop-shadow-sm">{p.val}</text>
+                                <text x={p.x} y={height + 15} textAnchor="middle" fontSize="7" fill="#64748b">{p.label}</text>
+                            </g>
+                        ))}
+                    </svg>
+                );
+            };
+
+            const BarChart = ({ data }) => {
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터 없음</div>;
+                const width = 300;
+                const height = 140;
+                const maxKcal = Math.max(...data.map(d => d.total), 500);
+                const barWidth = Math.min((width / data.length) * 0.7, 30);
+
+                return (
+                    <svg viewBox={`0 0 ${width} ${height + 25}`} className="w-full h-full overflow-visible">
+                        {data.map((d, i) => {
+                            const x = (data.length > 1) ? (i / (data.length - 1)) * (width - barWidth) : (width - barWidth) / 2;
+                            const rH = (d.ring / maxKcal) * height;
+                            const bH = (d.box / maxKcal) * height;
+                            return (
+                                <g key={i}>
+                                    {/* Stacked Bars */}
+                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" className="shadow-sm" />
+                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" className="shadow-sm" />
+                                    
+                                    {/* Labels */}
+                                    <text x={x + barWidth/2} y={height + 15} textAnchor="middle" fontSize="7" fill="#64748b" fontWeight="bold">{d.label}</text>
+                                    
+                                    {/* Values Inside or Above */}
+                                    {d.box > 50 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 3} textAnchor="middle" fontSize="6" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
+                                    {d.ring > 50 && <text x={x + barWidth/2} y={height - (rH/2) + 3} textAnchor="middle" fontSize="6" fontWeight="900" fill="#fff">{Math.round(d.ring)}</text>}
+                                    
+                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 6} textAnchor="middle" fontSize="8" fontWeight="900" fill="#22d3ee" className="drop-shadow-md">{Math.round(d.total)}</text>}
+                                </g>
+                            );
+                        })}
+                    </svg>
+                );
+            };
 
             const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
             const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
             const calendarDays = [];
             for (let i = 0; i < firstDayOfMonth; i++) calendarDays.push(null);
             for (let i = 1; i <= daysInMonth; i++) calendarDays.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), i));
-
-            const memoLogs = useMemo(() => {
-                return Object.entries(logs)
-                    .filter(([_, data]) => data.note && data.note.trim() !== "")
-                    .sort((a, b) => b[0].localeCompare(a[0]));
-            }, [logs]);
 
             return (
                 <div className="min-h-screen text-slate-100 pb-36 overflow-x-hidden selection:bg-cyan-500/30">
@@ -276,15 +351,15 @@
                     </div>
 
                     <div className="max-w-md mx-auto px-4 pt-8 md:max-w-6xl">
-                        {/* 헤더 (글자 크기 상향) */}
+                        {/* 헤더 */}
                         <header className="flex justify-between items-center mb-8 px-1">
                             <div>
                                 <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter leading-tight uppercase text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">Limit<br/><span className="text-cyan-400">Breaker</span></h1>
-                                <p className="text-[10px] font-black tracking-[0.3em] text-slate-500 uppercase mt-1">NEO-EVO System</p>
+                                <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-1">NEO-EVO System</p>
                             </div>
                             <div className="glass p-4 sm:p-5 rounded-[2rem] text-right min-w-[100px] relative">
-                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center text-xs"><LucideIcon name="help-circle" size={14} /></button>
-                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">{viewDate.getFullYear()} Cycle</p>
+                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-7 h-7 bg-white/10 rounded-full flex items-center justify-center text-xs border border-white/10 hover:bg-cyan-500 hover:text-white transition-all"><LucideIcon name="help-circle" size={14} /></button>
+                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">{viewDate.getFullYear()} Year</p>
                                 <div className="text-2xl sm:text-3xl font-black italic leading-none">{yearLogsCount} <span className="text-slate-600 text-xs font-normal">/ 300</span></div>
                                 <div className="mt-2 h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
                                     <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: `${Math.min((yearLogsCount/300)*100, 100)}%`}}></div>
@@ -294,20 +369,18 @@
 
                         {viewMode === 'calendar' && (
                             <div className="flex flex-col gap-5 animate-in fade-in duration-500">
-                                {/* 달력 영역 (폰트 키움) */}
-                                <div className="glass rounded-[2rem] p-4 sm:p-8 shadow-2xl">
-                                    <div className="flex justify-between items-center mb-6 px-1">
+                                <div className="glass rounded-[2.5rem] p-4 sm:p-8 shadow-2xl">
+                                    <div className="flex justify-between items-center mb-6">
                                         <button onClick={() => setShowNavModal(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-sm sm:text-xl font-black italic">
                                             {viewDate.getFullYear()} <span className="text-cyan-400">{viewDate.getMonth() + 1}월</span>
                                             <LucideIcon name="search" size={14} className="text-slate-500" />
                                         </button>
-                                        <div className="flex gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5">
+                                        <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
                                             <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))} className="p-2 hover:bg-white/10 rounded-lg"><LucideIcon name="chevron-left" size={20}/></button>
                                             <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))} className="p-2 hover:bg-white/10 rounded-lg"><LucideIcon name="chevron-right" size={20}/></button>
                                         </div>
                                     </div>
-                                    {/* 한글 요일 적용 및 폰트 확대 */}
-                                    <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center mb-3">
+                                    <div className="grid grid-cols-7 gap-1.5 sm:gap-3 text-center mb-3">
                                         {['일','월','화','수','목','금','토'].map((d, i) => (
                                             <div key={i} className={`text-[12px] font-black ${i===0?'text-red-500':i===6?'text-blue-500':'text-slate-500'} opacity-70 mb-1`}>{d}</div>
                                         ))}
@@ -322,11 +395,11 @@
                                                 <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-xl sm:rounded-[1.5rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/30 border-cyan-400/40' : ''}`}>
                                                     <span className={`text-base sm:text-2xl font-black ${isActive ? 'text-white' : formatDate(new Date()) === dStr ? 'text-cyan-400' : 'text-slate-400'}`}>{date.getDate()}</span>
                                                     {log && (
-                                                        <div className={`absolute -top-1 -right-1 p-1 rounded-full text-white shadow-lg border border-white/20 ${routine.id === 'rest' ? 'bg-emerald-500' : routine.id === 'off' ? 'bg-slate-500' : (completion?.color || 'bg-slate-500')}`}>
-                                                            <LucideIcon name={routine.id === 'rest' ? "trending-up" : routine.id === 'off' ? "moon" : (completion?.miniIcon || "star")} size={10} />
+                                                        <div className={`absolute -top-1 -right-1 p-1 rounded-full text-white shadow-lg border border-white/20 ${routine?.id === 'rest' ? 'bg-emerald-500' : routine?.id === 'off' ? 'bg-slate-500' : (completion?.color || 'bg-slate-500')}`}>
+                                                            <LucideIcon name={routine?.id === 'rest' ? "trending-up" : routine?.id === 'off' ? "moon" : (completion?.miniIcon || "star")} size={10} />
                                                         </div>
                                                     )}
-                                                    {log && log.note && <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_5px_#22d3ee]"></div>}
+                                                    {log && (log.note || log.weight || log.ringKcal || log.boxingKcal) && <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></div>}
                                                     {log && routine && <div className={`absolute bottom-1 w-[90%] rounded-full text-[8px] sm:text-[10px] font-black text-center truncate px-0.5 ${isActive ? 'bg-white text-cyan-600 shadow-sm' : 'bg-slate-800 text-white opacity-80'}`}>{routine.label}</div>}
                                                 </button>
                                             );
@@ -334,84 +407,76 @@
                                     </div>
                                 </div>
 
-                                {/* 아이콘 설명 한 줄 표시 */}
-                                <div className="flex justify-center gap-4 bg-white/5 border border-white/5 rounded-full py-2.5 px-5 shadow-sm no-scrollbar overflow-x-auto whitespace-nowrap">
+                                <div className="flex justify-center gap-4 bg-white/5 border border-white/5 rounded-full py-3 px-5 shadow-sm no-scrollbar overflow-x-auto whitespace-nowrap">
                                     {COMPLETION_TYPES.map(t => (
-                                        <div key={t.id} className="flex items-center gap-1.5 opacity-60">
+                                        <div key={t.id} className="flex items-center gap-2 opacity-60">
                                             <div className={`p-1 rounded-full ${t.color} text-white`}><LucideIcon name={t.miniIcon} size={10} /></div>
-                                            <span className="text-[10px] font-black uppercase tracking-tight">{t.label}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-wider">{t.label}</span>
                                         </div>
                                     ))}
-                                    <div className="flex items-center gap-1.5 opacity-60">
+                                    <div className="flex items-center gap-2 opacity-60">
                                         <div className="p-1 rounded-full bg-emerald-500 text-white"><LucideIcon name="trending-up" size={10} /></div>
-                                        <span className="text-[10px] font-black uppercase tracking-tight">EVO</span>
+                                        <span className="text-[10px] font-black uppercase tracking-wider">EVO</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 opacity-60">
+                                    <div className="flex items-center gap-2 opacity-60">
                                         <div className="p-1 rounded-full bg-slate-500 text-white"><LucideIcon name="moon" size={10} /></div>
-                                        <span className="text-[10px] font-black uppercase tracking-tight">OFF</span>
+                                        <span className="text-[10px] font-black uppercase tracking-wider">OFF</span>
                                     </div>
                                 </div>
 
-                                {/* 데일리 명언 (가독성 상향) */}
-                                <div className="glass rounded-[2rem] p-6 relative overflow-hidden text-center group">
-                                    <div className="absolute top-[-10px] left-[-10px] opacity-[0.05] text-cyan-400"><LucideIcon name="quote" size={80} /></div>
-                                    <p className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.3em] mb-2 opacity-80">Today's Pulse</p>
-                                    <p className="text-base sm:text-2xl font-black italic text-slate-100 leading-snug relative z-10 px-2 drop-shadow-md">"{currentQuote}"</p>
-                                </div>
-
-                                {/* 기록 섹션 (폰트 키움) */}
-                                <div className="glass rounded-[2rem] overflow-hidden shadow-2xl flex flex-col mb-4 border-white/5">
+                                <div className="glass rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col mb-4 border-white/5">
                                     <div className={`p-6 bg-gradient-to-br ${selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.color : 'from-slate-800 to-slate-900'} transition-all duration-700 relative`}>
                                         <p className="text-white/60 text-[11px] font-black mb-1 uppercase tracking-widest opacity-90">{selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
-                                        <h2 className="text-2xl sm:text-4xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Mission Briefing"}</h2>
+                                        <h2 className="text-2xl sm:text-4xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Combat Briefing"}</h2>
+                                        {selectedLog && <button onClick={deleteLogEntry} className="absolute top-6 right-6 p-2.5 bg-black/20 rounded-full text-red-400 border border-white/5"><LucideIcon name="trash-2" size={20} /></button>}
                                     </div>
+                                    
                                     <div className="p-6 space-y-8">
                                         <section>
-                                            <div className="flex justify-between items-center mb-4 px-1">
-                                                <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3">Select Routine</h3>
-                                                {selectedLog && <button onClick={() => deleteLog(selectedDateStr)} className="text-[10px] font-black text-red-500/60 hover:text-red-400 underline uppercase">Delete</button>}
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
+                                            <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3 mb-5">Routine Select</h3>
+                                            <div className="grid grid-cols-2 gap-3.5">
                                                 {ROUTINES.map(r => (
-                                                    <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-5 rounded-2xl text-left border-2 transition-all active:scale-95 ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}>
+                                                    <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-5 rounded-2xl text-left border-2 transition-all active:scale-95 ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg' : 'border-white/5 bg-white/5'}`}>
                                                         <p className={`text-[10px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
-                                                        <p className="text-[13px] font-black text-white uppercase truncate tracking-tight">{r.name}</p>
+                                                        <p className="text-[14px] font-black text-white uppercase truncate tracking-tight">{r.name}</p>
                                                     </button>
                                                 ))}
                                             </div>
                                         </section>
-                                        
+
                                         {selectedLog && (
-                                            <div className="animate-in slide-in-from-top-2 duration-300">
-                                                <div className="p-5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-3 mb-8 shadow-inner">
-                                                    <h4 className="text-[11px] font-black text-cyan-400 uppercase flex items-center gap-2"><LucideIcon name="info" size={14}/> Mission Synergy</h4>
-                                                    <p className="text-xs sm:text-base text-slate-300 font-bold leading-relaxed">{ROUTINES.find(r => r.id === selectedLog.programId)?.detail}</p>
-                                                    <p className="text-[11px] sm:text-sm text-slate-500 italic leading-relaxed border-t border-white/5 pt-3">"{ROUTINES.find(r => r.id === selectedLog.programId)?.synergy}"</p>
-                                                </div>
+                                            <div className="animate-in slide-in-from-top-2 duration-300 space-y-8">
+                                                <section className="space-y-5">
+                                                    <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3">Performance Data</h3>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="space-y-2 relative group">
+                                                            <label className="text-[10px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight <button onClick={()=>clearField('weight')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={12}/></button></label>
+                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="kg" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-base font-black text-white focus:outline-none focus:ring-2 ring-cyan-400" />
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
+                                                                <div className="space-y-1 group">
+                                                                    <label className="text-[10px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>clearField('ringKcal')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={12}/></button></label>
+                                                                    <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-sm font-black text-orange-400 focus:outline-none focus:ring-1 ring-orange-500" />
+                                                                </div>
+                                                            )}
+                                                            {ROUTINES.find(r => r.id === selectedLog.programId)?.hasBoxing && (
+                                                                <div className="space-y-1 group">
+                                                                    <label className="text-[10px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>clearField('boxingKcal')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={12}/></button></label>
+                                                                    <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-sm font-black text-blue-400 focus:outline-none focus:ring-1 ring-blue-500" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </section>
 
-                                                <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3 mb-4">Workout Memo</h3>
-                                                <textarea value={tempNote} onChange={(e) => setTempNote(e.target.value)} onBlur={saveNoteOnly} placeholder="훈련 성과나 컨디션을 기록하세요..." className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 ring-cyan-400 min-h-[100px] resize-none no-scrollbar shadow-inner" />
-                                            </div>
-                                        )}
-
-                                        {selectedLog && selectedLog.programId !== 'rest' && selectedLog.programId !== 'off' && (
-                                            <section className="animate-in slide-in-from-top-2 duration-300">
-                                                <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3 mb-4">Completion Status</h3>
-                                                <div className="grid grid-cols-3 gap-3">
-                                                    {COMPLETION_TYPES.map(t => (
-                                                        <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all active:scale-95 ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
-                                                            <LucideIcon name={t.icon} size={24} className="mb-2" />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest">{t.label}</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </section>
-                                        )}
-                                        
-                                        {!selectedLog && (
-                                            <div className="text-center py-10 opacity-20 flex flex-col items-center">
-                                                <LucideIcon name="activity" size={32} className="mb-3 animate-pulse" />
-                                                <p className="text-[11px] font-black uppercase tracking-[0.3em] italic">Waiting for Command</p>
+                                                <section className="space-y-4">
+                                                    <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-3">Combat Memo</h3>
+                                                    <textarea value={tempData.note} onChange={(e) => setTempData({...tempData, note: e.target.value})} placeholder="소감을 기록하세요..." className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-5 text-sm text-slate-200 placeholder:text-slate-700 focus:outline-none focus:ring-2 ring-cyan-400 min-h-[120px] resize-none" />
+                                                    <button onClick={handleManualSave} className="w-full py-5 bg-cyan-600 hover:bg-cyan-500 rounded-[1.5rem] font-black text-sm uppercase shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                                                        <LucideIcon name="save" size={20} /> Update Performance
+                                                    </button>
+                                                </section>
                                             </div>
                                         )}
                                     </div>
@@ -419,49 +484,34 @@
                             </div>
                         )}
 
-                        {viewMode === 'program' && (
+                        {viewMode === 'chart' && (
                             <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2 mb-2"><LucideIcon name="layout-grid" size={16}/> Hybrid Program Database</h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    {ROUTINES.map(r => (
-                                        <div key={r.id} className="glass rounded-[2rem] overflow-hidden shadow-xl border-white/5 group hover:border-cyan-400/40 transition-all">
-                                            <div className={`bg-gradient-to-br ${r.color} p-5 flex justify-between items-center shadow-md`}>
-                                                <span className="font-black text-white text-xl italic uppercase drop-shadow-lg">{r.label} - {r.name}</span>
-                                                <LucideIcon name={r.id === 'rest' ? "trending-up" : r.id === 'off' ? "moon" : "flame"} size={24} className="text-white drop-shadow-md" />
-                                            </div>
-                                            <div className="p-6 space-y-5">
-                                                <div>
-                                                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Detailed Schedule</p>
-                                                    <p className="text-slate-100 text-base font-bold tracking-tight leading-snug">{r.detail}</p>
-                                                </div>
-                                                <div className="pt-4 border-t border-white/5">
-                                                    <h4 className="text-[11px] font-black text-cyan-400 uppercase tracking-widest mb-2 flex items-center gap-2"><LucideIcon name="zap" size={14}/> Mission Synergy</h4>
-                                                    <p className="text-sm text-slate-400 font-medium leading-relaxed italic opacity-90">"{r.synergy}"</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="flex justify-between items-center px-1">
+                                    <h3 className="text-sm font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2"><LucideIcon name="trending-up" size={18}/> Performance Analytics</h3>
+                                    <div className="flex bg-white/5 rounded-full p-1 border border-white/5">
+                                        {['day', 'week', 'month', 'year'].map(p => (
+                                            <button key={p} onClick={() => setChartPeriod(p)} className={`px-3 py-1.5 rounded-full text-[10px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white' : 'text-slate-500 hover:text-white'}`}>{p[0]}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                <div className="glass rounded-[2.5rem] p-6 border-white/5 shadow-xl">
+                                    <h4 className="text-xs font-black text-white uppercase tracking-tight mb-8">Weight Trends (kg)</h4>
+                                    <div className="chart-container">
+                                        <LineChart data={chartAnalytics} />
+                                    </div>
                                 </div>
 
-                                <h3 className="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] px-1 mt-6 flex items-center gap-2 mb-2"><LucideIcon name="shield-check" size={16}/> Training Core Guides</h3>
-                                <div className="grid grid-cols-1 gap-4 mb-6">
-                                    {CORE_GUIDES.map((guide, idx) => (
-                                        <div key={idx} className="glass p-6 rounded-3xl flex gap-5 border-white/5 items-center">
-                                            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 shadow-inner"><LucideIcon name={guide.icon} size={24} className="text-cyan-400" /></div>
-                                            <div>
-                                                <h4 className="text-[13px] font-black text-white uppercase tracking-tight mb-1">{guide.title}</h4>
-                                                <p className="text-xs text-slate-400 leading-relaxed font-medium opacity-80">{guide.desc}</p>
-                                            </div>
+                                <div className="glass rounded-[2.5rem] p-6 border-white/5 shadow-xl">
+                                    <div className="flex justify-between items-center mb-8">
+                                        <h4 className="text-xs font-black text-white uppercase tracking-tight">Calories Burnt (kcal)</h4>
+                                        <div className="flex gap-4">
+                                            <div className="flex items-center gap-1.5 text-[8px] font-black text-orange-500 uppercase"><div className="w-2 h-2 rounded-full bg-orange-500"></div> RF</div>
+                                            <div className="flex items-center gap-1.5 text-[8px] font-black text-blue-500 uppercase"><div className="w-2 h-2 rounded-full bg-blue-500"></div> BX</div>
                                         </div>
-                                    ))}
-                                </div>
-
-                                <div className="glass rounded-[2.5rem] p-8 border-cyan-400/20 shadow-2xl mb-8">
-                                    <h3 className="text-xs font-black text-cyan-400 uppercase tracking-widest mb-5 flex items-center gap-2"><LucideIcon name="database" size={16} /> System Management</h3>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <button onClick={exportData} className="flex items-center justify-center gap-3 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all shadow-xl active:scale-95"><LucideIcon name="download" size={20} /> Backup Database (.json)</button>
-                                        <button onClick={() => fileInputRef.current.click()} className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all active:scale-95 border border-white/5"><LucideIcon name="upload" size={20} /> Restore Database File</button>
-                                        <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
+                                    </div>
+                                    <div className="chart-container mb-4">
+                                        <BarChart data={chartAnalytics} />
                                     </div>
                                 </div>
                             </div>
@@ -469,24 +519,33 @@
 
                         {viewMode === 'memo' && (
                             <div className="flex flex-col gap-5 animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2 mb-2"><LucideIcon name="message-square" size={16}/> Workout Archives</h3>
+                                <h3 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2 mb-2"><LucideIcon name="message-square" size={18}/> Workout Archives</h3>
                                 {memoLogs.length === 0 ? (
                                     <div className="glass rounded-[2.5rem] p-20 text-center opacity-30 italic text-base border-dashed border-2 border-white/10">훈련 소감이 비어있습니다.</div>
                                 ) : (
                                     memoLogs.map(([date, data]) => {
                                         const routine = ROUTINES.find(r => r.id === data.programId);
                                         return (
-                                            <div key={date} className="glass rounded-[2rem] overflow-hidden shadow-xl border-white/5 group hover:border-cyan-400/30 transition-all">
-                                                <div className={`px-6 py-4 bg-gradient-to-r ${routine?.color || 'from-slate-800 to-slate-900'} flex justify-between items-center shadow-sm`}>
-                                                    <span className="text-xs font-black italic tracking-tight">{date.replace(/-/g, '.')}</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <LucideIcon name={routine?.id === 'rest' ? 'trending-up' : routine?.id === 'off' ? 'moon' : 'award'} size={14} className="text-white" />
-                                                        <span className="text-[10px] font-black opacity-90 uppercase tracking-widest">{routine?.label} COMPLETE</span>
+                                            <div key={date} className="glass rounded-[2.2rem] overflow-hidden shadow-xl border-white/5 group mb-2">
+                                                <div className={`px-6 py-5 bg-gradient-to-r ${routine?.color || 'from-slate-800 to-slate-900'} flex justify-between items-center shadow-md`}>
+                                                    <span className="text-xs font-black italic tracking-wider">{date.replace(/-/g, '.')}</span>
+                                                    <div className="flex items-center gap-2.5">
+                                                        <LucideIcon name={routine?.id === 'rest' ? 'trending-up' : routine?.id === 'off' ? 'moon' : 'award'} size={16} className="text-white" />
+                                                        <span className="text-[11px] font-black opacity-90 uppercase tracking-widest">{routine?.label} SUCCESS</span>
                                                     </div>
                                                 </div>
-                                                <div className="p-6 flex gap-6 items-start">
-                                                    <div className="text-cyan-400 opacity-20 shrink-0 mt-1"><LucideIcon name="quote" size={32} /></div>
-                                                    <p className="text-sm sm:text-lg text-slate-200 font-medium leading-relaxed italic py-1">"{data.note}"</p>
+                                                <div className="p-6 space-y-5">
+                                                    <div className="flex gap-5 items-start">
+                                                        <div className="text-cyan-400 opacity-20 shrink-0 mt-1"><LucideIcon name="quote" size={36} /></div>
+                                                        <p className="text-base sm:text-lg text-slate-200 font-medium leading-relaxed italic py-1">"{data.note}"</p>
+                                                    </div>
+                                                    {(data.ringKcal || data.boxingKcal || data.weight) && (
+                                                        <div className="flex gap-5 border-t border-white/5 pt-4">
+                                                            {data.weight && <div className="flex items-center gap-2 text-[11px] font-black text-slate-500 uppercase tracking-widest"><LucideIcon name="scale" size={16}/> {data.weight}kg</div>}
+                                                            {data.ringKcal && <div className="flex items-center gap-2 text-[11px] font-black text-orange-500 uppercase tracking-widest"><LucideIcon name="zap" size={16}/> RF {data.ringKcal}</div>}
+                                                            {data.boxingKcal && <div className="flex items-center gap-2 text-[11px] font-black text-blue-500 uppercase tracking-widest"><LucideIcon name="zap" size={16}/> BX {data.boxingKcal}</div>}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
@@ -495,29 +554,56 @@
                             </div>
                         )}
 
-                        {/* 하단 네비게이션 (터치 타겟 확대) */}
-                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm glass rounded-[2.5rem] p-2 flex gap-2 shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 border-white/20">
-                            <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-1 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="calendar" size={18} /> CAL</button>
-                            <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-1 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="message-square" size={18} /> MEMO</button>
-                            <button onClick={() => setViewMode('program')} className={`flex-1 flex flex-col items-center justify-center gap-1 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase tracking-widest ${viewMode === 'program' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="layout-grid" size={18} /> DB</button>
+                        {viewMode === 'program' && (
+                            <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
+                                <h3 className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-2 mb-2"><LucideIcon name="layout-grid" size={16}/> Hybrid Program Database</h3>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {ROUTINES.map(r => (
+                                        <div key={r.id} className="glass rounded-[2rem] overflow-hidden shadow-xl border-white/5 group">
+                                            <div className={`bg-gradient-to-br ${r.color} p-6 flex justify-between items-center shadow-lg`}>
+                                                <span className="font-black text-white text-xl italic uppercase drop-shadow-lg tracking-tight">{r.label} - {r.name}</span>
+                                                <LucideIcon name={r.id === 'rest' ? "trending-up" : r.id === 'off' ? "moon" : "flame"} size={26} className="text-white drop-shadow-md" />
+                                            </div>
+                                            <div className="p-6 space-y-5">
+                                                <p className="text-slate-100 text-base font-bold tracking-tight leading-snug">{r.detail}</p>
+                                                <p className="text-sm text-slate-400 font-medium italic opacity-90 leading-relaxed">"{r.synergy}"</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="glass rounded-[2.5rem] p-8 border-cyan-400/20 shadow-2xl mb-8">
+                                    <h3 className="text-xs font-black text-cyan-400 uppercase tracking-widest mb-6 flex items-center gap-2"><LucideIcon name="database" size={18} /> System Management</h3>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <button onClick={exportData} className="flex items-center justify-center gap-3 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all shadow-xl active:scale-95"><LucideIcon name="download" size={20} /> Backup Database (.json)</button>
+                                        <button onClick={() => fileInputRef.current.click()} className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 text-white font-black py-5 rounded-[1.8rem] text-sm uppercase transition-all border border-white/5"><LucideIcon name="upload" size={20} /> Restore Database File</button>
+                                        <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 하단 네비게이션 */}
+                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-sm glass rounded-[2.5rem] p-2 flex gap-1.5 shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 border-white/20 no-scrollbar overflow-x-auto">
+                            <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-xl scale-105' : 'text-slate-500'}`}><LucideIcon name="calendar" size={22} /> CAL</button>
+                            <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-xl scale-105' : 'text-slate-500'}`}><LucideIcon name="message-square" size={22} /> MEMO</button>
+                            <button onClick={() => setViewMode('chart')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase ${viewMode === 'chart' ? 'bg-white text-slate-950 shadow-xl scale-105' : 'text-slate-500'}`}><LucideIcon name="trending-up" size={22} /> CHART</button>
+                            <button onClick={() => setViewMode('program')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] text-[10px] font-black transition-all uppercase ${viewMode === 'program' ? 'bg-white text-slate-950 shadow-xl scale-105' : 'text-slate-500'}`}><LucideIcon name="layout-grid" size={22} /> DB</button>
                         </div>
                     </div>
 
-                    {toast && <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[200] glass px-8 py-5 rounded-full shadow-2xl border-cyan-400/50 animate-in fade-in slide-in-from-bottom-8 transition-all"><p className="text-sm font-black text-cyan-400 tracking-tight flex items-center gap-3"><LucideIcon name="check-circle" size={16} /> {toast}</p></div>}
+                    {toast && <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[200] glass px-8 py-5 rounded-full shadow-2xl border-cyan-400/50 animate-in fade-in slide-in-from-bottom-8 transition-all"><p className="text-sm font-black text-cyan-400 tracking-tight flex items-center gap-3"><LucideIcon name="check-circle" size={18} /> {toast}</p></div>}
 
                     {showNavModal && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[3rem] p-10 w-full max-w-xs shadow-2xl">
-                                <div className="flex justify-between items-center mb-8 text-cyan-400 font-black italic uppercase tracking-widest text-lg">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-2 bg-white/5 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5"><LucideIcon name="x" size={24} /></button></div>
+                            <div className="glass border-white/20 rounded-[3rem] p-10 w-full max-w-xs shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+                                <div className="flex justify-between items-center mb-8 text-cyan-400 font-black italic uppercase tracking-widest text-lg">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-2 bg-white/5 rounded-full border border-white/5"><LucideIcon name="x" size={24} /></button></div>
                                 <div className="space-y-8">
-                                    <div className="relative">
-                                        <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-3xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
-                                            {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y} className="bg-slate-950" key={y}>{y} YEAR</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-3">
+                                    <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-6 text-3xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
+                                        {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y} className="bg-slate-950" key={y}>{y} YEAR</option>)}
+                                    </select>
+                                    <div className="grid grid-cols-4 gap-2.5">
                                         {Array.from({length: 12}).map((_, i) => (
-                                            <button key={i} onClick={() => { setViewDate(new Date(viewDate.getFullYear(), i, 1)); setShowNavModal(false); }} className={`py-4 rounded-xl text-base font-black transition-all ${viewDate.getMonth() === i ? 'bg-cyan-500 text-white shadow-xl' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}>{i + 1}</button>
+                                            <button key={i} onClick={() => { setViewDate(new Date(viewDate.getFullYear(), i, 1)); setShowNavModal(false); }} className={`py-4 rounded-xl text-lg font-black transition-all ${viewDate.getMonth() === i ? 'bg-cyan-500 text-white shadow-xl' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}>{i + 1}</button>
                                         ))}
                                     </div>
                                 </div>
@@ -528,18 +614,13 @@
                     {showHelp && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
                             <div className="glass border-white/20 rounded-[3rem] p-8 w-full max-w-sm shadow-2xl space-y-8">
-                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-lg">System Help<button onClick={() => setShowHelp(false)} className="p-2 bg-white/5 rounded-full"><LucideIcon name="x" size={20} /></button></div>
+                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-lg">Manual<button onClick={() => setShowHelp(false)} className="p-2 bg-white/5 rounded-full"><LucideIcon name="x" size={20} /></button></div>
                                 <div className="space-y-6 text-sm leading-relaxed text-slate-300">
-                                    <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                        <p className="font-black text-white mb-2 uppercase tracking-tight flex items-center gap-2"><LucideIcon name="github" size={14}/> App Installation</p>
-                                        <p className="opacity-80 leading-relaxed font-medium">삼성 인터넷이나 크롬 메뉴에서 '홈 화면에 추가'를 누르면 진짜 앱처럼 설치됩니다.</p>
-                                    </div>
-                                    <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                        <p className="font-black text-white mb-2 uppercase tracking-tight flex items-center gap-2"><LucideIcon name="save" size={14}/> Periodic Backup</p>
-                                        <p className="opacity-80 leading-relaxed font-medium">기록 분실 방지를 위해 <span className="text-cyan-400 font-bold">DB 탭</span> 하단에서 주기적으로 백업 파일을 다운로드하세요.</p>
-                                    </div>
+                                    <p><strong>1. 차트 필터</strong>: CHART 탭 상단의 <span className="text-cyan-400">D, W, M, Y</span> 버튼으로 기간별 통계를 확인하세요. 데이터가 1개만 있어도 이제 정상 표시됩니다.</p>
+                                    <p><strong>2. 개별 칼로리</strong>: 바 차트 안에 <span className="text-orange-500">링피트</span>와 <span className="text-blue-500">복싱</span> 수치가 각각 숫자로 표기되며, 전체 합계는 바 위에 표시됩니다.</p>
+                                    <p><strong>3. 기록 수정</strong>: 입력창 우측의 X 버튼으로 내용을 지우거나, 상단 휴지통 아이콘으로 전체 기록을 삭제할 수 있습니다.</p>
                                 </div>
-                                <button onClick={() => setShowHelp(false)} className="w-full py-5 bg-cyan-600 rounded-[1.8rem] font-black uppercase text-xs shadow-lg shadow-cyan-900/20 active:scale-95 transition-all">I Understood</button>
+                                <button onClick={() => setShowHelp(false)} className="w-full py-5 bg-cyan-600 rounded-[1.8rem] font-black uppercase text-xs active:scale-95 transition-all">Understood</button>
                             </div>
                         </div>
                     )}
