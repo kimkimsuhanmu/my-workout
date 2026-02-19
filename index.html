@@ -5,21 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LIMIT BREAKER: NEO-EVO</title>
     
-    <!-- 모바일 앱 최적화 -->
+    <!-- 모바일 앱 최적화 메타 태그 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10542/10542456.png">
     
-    <!-- 1. React & ReactDOM -->
+    <!-- 라이브러리 로드 -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- 3. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 4. Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -34,19 +31,21 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         @keyframes pulse-glow {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.4; }
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.35; }
         }
         .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
+        /* 캘린더 셀 레이아웃 최적화 */
         .calendar-cell {
-            aspect-ratio: 1 / 1.1;
+            aspect-ratio: 1 / 1.15;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             position: relative;
+            padding-top: 8px;
         }
 
         .chart-container {
@@ -55,10 +54,11 @@
             position: relative;
         }
 
+        /* 폰트 크기 모바일 최적화 (폴드 4 커버 화면) */
         @media (max-width: 400px) {
             .mobile-label { font-size: 0.8rem; }
             .mobile-title { font-size: 1.3rem; }
-            .mobile-text { font-size: 1rem; }
+            .mobile-text { font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -88,41 +88,35 @@
 
         // --- 루틴 데이터 ---
         const ROUTINES = [
-            { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", glow: "text-blue-400", synergy: "하체 소진 후 복합 운동을 진행하면 체지방 연소가 극대화됩니다.", hasRingfit: true, hasBoxing: true },
-            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", glow: "text-cyan-300", synergy: "관절 피로도를 관리하면서 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다.", hasRingfit: false, hasBoxing: true },
-            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", glow: "text-orange-400", synergy: "굳기 쉬운 등과 어깨를 링피트로 펴주고 코어를 잡아 안정성을 높입니다.", hasRingfit: true, hasBoxing: true },
-            { id: 'rest', label: "EVO", name: "시스템 재정비", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", glow: "text-emerald-400", synergy: "근육 재생을 위한 필수 시간입니다. 스트레칭만 권장하는 초회복 단계입니다.", hasRingfit: false, hasBoxing: false },
-            { id: 'off', label: "OFF", name: "일반 휴식", detail: "별도의 운동 일정 없는 완전 정지", color: "from-slate-600 to-slate-800", glow: "text-slate-400", synergy: "컨디션 난조나 개인 사정으로 인한 정지 상태입니다. 에너지를 보존하세요.", hasRingfit: false, hasBoxing: false },
+            { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", hasRingfit: true, hasBoxing: true, synergy: "하체 소진 후 복합 운동 시 체지방 연소가 극대화됩니다." },
+            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", hasRingfit: false, hasBoxing: true, synergy: "관절 피로도를 관리하면서 높은 유산소 효과를 정점으로 끌어올립니다." },
+            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", hasRingfit: true, hasBoxing: true, synergy: "굽기 쉬운 상체를 링피트로 펴주고 코어를 잡아 펀치 안정성을 높입니다." },
+            { id: 'rest', label: "EVO", name: "시스템 재정비", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", hasRingfit: false, hasBoxing: false, synergy: "성장은 휴식 중에 일어납니다. 초회복을 위한 필수 골든타임입니다." },
+            { id: 'off', label: "OFF", name: "일반 휴식", detail: "별도의 운동 일정 없는 완전 정지", color: "from-slate-600 to-slate-800", hasRingfit: false, hasBoxing: false, synergy: "컨디션 난조나 사정으로 인한 정지 상태입니다. 에너지를 보존하세요." },
         ];
 
         const COMPLETION_TYPES = [
-            { id: 'full', label: 'FULL', icon: "award", miniIcon: "award", color: 'bg-yellow-500' },
-            { id: 'ringfit', label: 'RING', icon: "target", miniIcon: "target", color: 'bg-orange-500' },
-            { id: 'boxing', label: 'BOX', icon: "activity", miniIcon: "activity", color: 'bg-blue-500' },
+            { id: 'full', label: 'FULL', icon: "award", color: 'bg-yellow-500' },
+            { id: 'ringfit', label: 'RING', icon: "target", color: 'bg-orange-500' },
+            { id: 'boxing', label: 'BOX', icon: "activity", color: 'bg-blue-500' },
         ];
 
-        // 365일 다른 명언을 위한 데이터베이스 (대표 샘플과 함께 동적 생성 로직 포함)
+        // 365일 명언 데이터베이스 (대규모 확장)
         const BASE_QUOTES = [
-            "어제보다 나은 오늘이 당신을 위대하게 만든다.",
-            "한계는 당신의 마음이 결정하는 허상일 뿐이다.",
-            "지금의 고통은 미래의 당신이 보낸 감사장이다.",
-            "변명은 칼로리를 태우지 못한다. 일어나라.",
-            "완벽보다 딱 1%만 더 나아가라.",
-            "초회복 중, 신체는 지금 진화하고 있다.",
-            "땀방울은 당신이 살아있다는 뜨거운 증거.",
-            "오늘 하지 않으면 내일의 당신이 고생한다.",
-            "포기하고 싶을 때, 왜 시작했는지 생각하라.",
-            "근육은 정직한 노력의 산물이다.",
-            "강한 신체에 강한 정신이 깃든다.",
-            "고통은 지나가지만, 결과는 남는다.",
-            "천천히 가도 괜찮다. 멈추지만 마라.",
-            "당신은 생각보다 훨씬 더 강력하다.",
-            "오늘의 땀 한 방울이 내일의 변화를 만든다.",
-            "동기부여는 시작하게 하고, 습관은 계속하게 한다.",
-            "성공은 매일 반복되는 작은 노력의 합계다.",
-            "한계를 느낄 때가 바로 성장하는 순간이다.",
-            "최고의 운동은 당신이 오늘 실천한 운동이다.",
-            "자신을 이기는 것이 가장 큰 승리다."
+            "어제보다 나은 오늘이 당신을 위대하게 만든다.", "한계는 당신의 마음이 결정하는 허상일 뿐이다.", "지금의 고통은 미래의 당신이 보낸 감사장이다.",
+            "변명은 칼로리를 태우지 못한다. 일어나라.", "완벽보다 딱 1%만 더 나아가라.", "초회복 중, 신체는 지금 진화하고 있다.",
+            "땀방울은 당신이 살아있다는 뜨거운 증거.", "오늘 하지 않으면 내일의 당신이 고생한다.", "포기하고 싶을 때 왜 시작했는지 생각하라.",
+            "근육은 정직한 노력의 산물이다.", "강한 신체에 강한 정신이 깃든다.", "고통은 지나가지만 결과는 남는다.",
+            "천천히 가도 괜찮다. 멈추지만 마라.", "당신은 생각보다 훨씬 더 강력하다.", "오늘의 땀 한 방울이 내일의 변화를 만든다.",
+            "동기부여는 시작하게 하고 습관은 계속하게 한다.", "성공은 매일 반복되는 작은 노력의 합계다.", "한계를 느낄 때가 바로 성장하는 순간이다.",
+            "최고의 운동은 당신이 오늘 실천한 운동이다.", "자신을 이기는 것이 가장 큰 승리다.", "운동은 몸뿐만 아니라 마음도 단단하게 만든다.",
+            "신체는 정신이 시키는 대로 변한다.", "핑계는 승자에게 어울리지 않는 단어다.", "결과가 아닌 과정에 집중할 때 성장은 찾아온다.",
+            "당신의 몸은 당신이 먹고 움직인 결과물이다.", "오늘의 인내가 내일의 영광을 만든다.", "지름길은 없다. 오직 반복과 끈기뿐이다.",
+            "다시 시작하는 것을 두려워하지 마라.", "휴식도 훈련의 일부다. 현명하게 쉬어라.", "꿈을 꾸는 자는 많지만 실천하는 자는 적다.",
+            "남과 비교하지 말고 과거의 자신과 비교하라.", "운동할 수 있는 건강한 몸에 감사하라.", "매일의 훈련은 자신에게 주는 선물이다.",
+            "작은 성취가 모여 거대한 변화를 일으킨다.", "포기는 습관이 되고, 끈기도 습관이 된다.", "기회는 준비된 자에게만 찾아온다.",
+            "당신의 엔진은 아직 식지 않았다. 다시 점화하라.", "변화는 고통스럽지만 성장은 즐겁다.", "지금의 10분은 나중에 10시간보다 가치 있다.",
+            "운동의 완성은 식단과 휴식까지 포함된다.", "체력은 곧 실력이다.", "포기하는 법을 배우지 마라.", "시작이 반이 아니라, 계속하는 것이 전부다."
         ];
 
         function App() {
@@ -139,7 +133,7 @@
             const [tempData, setTempData] = useState({ ringKcal: "", boxingKcal: "", weight: "", note: "" });
 
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_final_v12_final');
+                const saved = localStorage.getItem('workout_logs_v14_premium');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
@@ -168,17 +162,15 @@
                 return Object.keys(logs).filter(d => d.startsWith(yearStr) && logs[d].programId !== 'off').length;
             }, [logs, viewDate]);
 
-            // 365일 고유 명언 로직: 날짜를 고유 인덱스로 변환
+            // 365일 고유 명언 로직
             const currentQuote = useMemo(() => {
                 const start = new Date(selectedDate.getFullYear(), 0, 0);
                 const diff = (selectedDate - start) + ((start.getTimezoneOffset() - selectedDate.getTimezoneOffset()) * 60 * 1000);
                 const oneDay = 1000 * 60 * 60 * 24;
                 const dayOfYear = Math.floor(diff / oneDay);
-                
-                // 베이스 명언을 바탕으로 날짜별로 다른 뉘앙스를 주거나 인덱싱
                 const quoteIndex = dayOfYear % BASE_QUOTES.length;
-                const prefix = dayOfYear % 3 === 0 ? "🔥 " : dayOfYear % 3 === 1 ? "⚡ " : "✨ ";
-                return prefix + BASE_QUOTES[quoteIndex];
+                const deco = ["⚡", "🔥", "✨", "🏆", "🌟"][dayOfYear % 5];
+                return `${deco} ${BASE_QUOTES[quoteIndex]}`;
             }, [selectedDate]);
 
             const saveLog = (dateStr, programId, status = 'full', updates = {}) => {
@@ -194,13 +186,13 @@
                     } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v12_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v14_premium', JSON.stringify(newLogs));
             };
 
             const handleManualSave = () => {
                 const dateStr = formatDate(selectedDate);
                 const log = logs[dateStr];
-                if (!log) { showMessage("루틴을 먼저 선택해 주세요."); return; }
+                if (!log) { showMessage("루틴을 먼저 선택하세요."); return; }
                 saveLog(dateStr, log.programId, log.status, {
                     ringKcal: tempData.ringKcal,
                     boxingKcal: tempData.boxingKcal,
@@ -210,14 +202,12 @@
                 showMessage("기록이 저장되었습니다.");
             };
 
-            const clearField = (field) => { setTempData(prev => ({ ...prev, [field]: "" })); };
-
             const deleteLogEntry = () => {
                 const newLogs = { ...logs };
                 delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_final_v12_final', JSON.stringify(newLogs));
-                showMessage("기록이 삭제되었습니다.");
+                localStorage.setItem('workout_logs_v14_premium', JSON.stringify(newLogs));
+                showMessage("기록 삭제 완료");
             };
 
             const exportData = () => {
@@ -226,7 +216,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `workout_v12_backup.json`;
+                link.download = `workout_limitbreaker_v14.json`;
                 link.click();
                 showMessage("백업 파일 생성 완료");
             };
@@ -240,7 +230,7 @@
                         const imported = JSON.parse(e.target.result);
                         if (imported) {
                             setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_final_v12_final', JSON.stringify({ ...logs, ...imported }));
+                            localStorage.setItem('workout_logs_v14_premium', JSON.stringify({ ...logs, ...imported }));
                             showMessage("데이터 복구 성공!");
                         }
                     } catch (err) { showMessage("오류 발생"); }
@@ -281,11 +271,11 @@
             }, [logs, chartPeriod]);
 
             const LineChart = ({ data }) => {
-                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic">데이터 없음</div>;
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic">데이터 부족</div>;
                 const width = 300;
                 const height = 120;
                 const validWeights = data.filter(d => d.weight !== null);
-                if (validWeights.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic">체중 기록 없음</div>;
+                if (validWeights.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic text-slate-500">체중 기록 없음</div>;
                 const values = validWeights.map(d => parseFloat(d.weight));
                 const min = values.length > 1 ? Math.min(...values) - 0.5 : values[0] - 1;
                 const max = values.length > 1 ? Math.max(...values) + 0.5 : values[0] + 1;
@@ -310,7 +300,7 @@
             };
 
             const BarChart = ({ data }) => {
-                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic">데이터 없음</div>;
+                if (data.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-lg italic">데이터 부족</div>;
                 const width = 300;
                 const height = 150;
                 const maxKcal = Math.max(...data.map(d => d.total), 500);
@@ -323,12 +313,12 @@
                             const bH = (d.box / maxKcal) * height;
                             return (
                                 <g key={i}>
-                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" />
-                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" />
+                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="3" />
+                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="3" />
                                     <text x={x + barWidth/2} y={height + 30} textAnchor="middle" fontSize="11" fill="#64748b" fontWeight="bold">{d.label}</text>
                                     {d.box > 40 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 6} textAnchor="middle" fontSize="12" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
                                     {d.ring > 40 && <text x={x + barWidth/2} y={height - (rH/2) + 6} textAnchor="middle" fontSize="12" fontWeight="900" fill="#fff">{Math.round(d.ring)}</text>}
-                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="15" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
+                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="16" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
                                 </g>
                             );
                         })}
@@ -336,11 +326,14 @@
                 );
             };
 
-            const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
-            const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-            const calendarDays = [];
-            for (let i = 0; i < firstDayOfMonth; i++) calendarDays.push(null);
-            for (let i = 1; i <= daysInMonth; i++) calendarDays.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), i));
+            const calendarDays = useMemo(() => {
+                const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+                const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+                const days = [];
+                for (let i = 0; i < firstDayOfMonth; i++) days.push(null);
+                for (let i = 1; i <= daysInMonth; i++) days.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), i));
+                return days;
+            }, [viewDate]);
 
             const memoLogs = useMemo(() => {
                 return Object.entries(logs)
@@ -349,24 +342,24 @@
             }, [logs]);
 
             return (
-                <div className="min-h-screen text-slate-100 pb-36 overflow-x-hidden selection:bg-cyan-500/30">
+                <div className="min-h-screen text-slate-100 pb-40 overflow-x-hidden selection:bg-cyan-500/30">
                     <div className="fixed inset-0 pointer-events-none -z-10">
-                        <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[80%] bg-blue-600/5 blur-[120px] animate-pulse-glow rounded-full"></div>
-                        <div className="absolute bottom-[-10%] left-[-10%] w-[80%] h-[80%] bg-indigo-600/5 blur-[120px] animate-pulse-glow rounded-full"></div>
+                        <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[80%] bg-blue-600/10 blur-[150px] animate-pulse-glow rounded-full"></div>
+                        <div className="absolute bottom-[-10%] left-[-10%] w-[80%] h-[80%] bg-indigo-600/10 blur-[150px] animate-pulse-glow rounded-full"></div>
                     </div>
 
                     <div className="max-w-md mx-auto px-4 pt-8 md:max-w-6xl">
                         <header className="flex justify-between items-center mb-10 px-1">
                             <div>
                                 <h1 className="text-4xl sm:text-6xl font-black italic tracking-tighter leading-tight uppercase text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">Limit<br/><span className="text-cyan-400 text-5xl">Breaker</span></h1>
-                                <p className="text-[12px] font-black tracking-widest text-slate-500 uppercase mt-2">NEO-EVO System</p>
+                                <p className="text-[12px] font-black tracking-widest text-slate-500 uppercase mt-2 tracking-widest">NEO-EVO System</p>
                             </div>
-                            <div className="glass p-5 rounded-[2.5rem] text-right min-w-[120px] relative shadow-2xl">
-                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center border border-white/10 hover:bg-cyan-500 transition-all"><LucideIcon name="help-circle" size={16} /></button>
+                            <div className="glass p-5 rounded-[2.5rem] text-right min-w-[130px] relative shadow-2xl">
+                                <button onClick={() => setShowHelp(true)} className="absolute -left-2 -top-2 w-9 h-9 bg-white/10 rounded-full flex items-center justify-center border border-white/10 hover:bg-cyan-500 transition-all shadow-lg"><LucideIcon name="help-circle" size={18} /></button>
                                 <p className="text-[10px] font-black text-slate-500 uppercase mb-1">{viewDate.getFullYear()} Year</p>
                                 <div className="text-3xl sm:text-4xl font-black italic leading-none">{yearLogsCount} <span className="text-slate-600 text-sm font-normal">/ 300</span></div>
-                                <div className="mt-3 h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                                    <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: `${Math.min((yearLogsCount/300)*100, 100)}%`}}></div>
+                                <div className="mt-3 h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-white/5">
+                                    <div className="h-full bg-cyan-400 shadow-[0_0_15px_#22d3ee]" style={{width: `${Math.min((yearLogsCount/300)*100, 100)}%`}}></div>
                                 </div>
                             </div>
                         </header>
@@ -375,18 +368,18 @@
                             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
                                 <div className="glass rounded-[3rem] p-5 sm:p-10 shadow-2xl">
                                     <div className="flex justify-between items-center mb-8 px-2">
-                                        <button onClick={() => setShowNavModal(true)} className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/5 border border-white/5 text-lg sm:text-2xl font-black italic hover:border-cyan-400/50 transition-all">
+                                        <button onClick={() => setShowNavModal(true)} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-xl sm:text-3xl font-black italic hover:border-cyan-400/50 transition-all">
                                             {viewDate.getFullYear()} <span className="text-cyan-400">{viewDate.getMonth() + 1}월</span>
-                                            <LucideIcon name="search" size={18} className="text-slate-500" />
+                                            <LucideIcon name="search" size={20} className="text-slate-500" />
                                         </button>
-                                        <div className="flex gap-2.5 bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                                            <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))} className="p-2.5 hover:bg-white/10 rounded-xl transition-all"><LucideIcon name="chevron-left" size={24}/></button>
-                                            <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))} className="p-2.5 hover:bg-white/10 rounded-xl transition-all"><LucideIcon name="chevron-right" size={24}/></button>
+                                        <div className="flex gap-2 bg-black/40 p-2 rounded-2xl border border-white/5">
+                                            <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))} className="p-3 hover:bg-white/10 rounded-xl transition-all"><LucideIcon name="chevron-left" size={26}/></button>
+                                            <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))} className="p-3 hover:bg-white/10 rounded-xl transition-all"><LucideIcon name="chevron-right" size={26}/></button>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-7 gap-2 sm:gap-4 text-center mb-4">
                                         {['일','월','화','수','목','금','토'].map((d, i) => (
-                                            <div key={i} className={`text-[14px] font-black ${i===0?'text-red-500':i===6?'text-blue-400':'text-slate-500'} opacity-80 mb-2`}>{d}</div>
+                                            <div key={i} className={`text-[15px] font-black ${i===0?'text-red-500':i===6?'text-blue-400':'text-slate-500'} opacity-80 mb-2`}>{d}</div>
                                         ))}
                                         {calendarDays.map((date, i) => {
                                             if (!date) return <div key={`empty-${i}`} className="aspect-square opacity-0"></div>;
@@ -396,15 +389,18 @@
                                             const completion = log ? COMPLETION_TYPES.find(t => t.id === log.status) : null;
                                             const isActive = selectedDateStr === dStr;
                                             return (
-                                                <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-[1.5rem] sm:rounded-[2rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/40 border-cyan-400/50' : ''}`}>
-                                                    <span className={`text-xl sm:text-3xl font-black ${isActive ? 'text-white' : formatDate(new Date()) === dStr ? 'text-cyan-400' : 'text-slate-400'}`}>{date.getDate()}</span>
-                                                    {log && (
-                                                        <div className={`absolute -top-1.5 -right-1.5 p-1.5 rounded-full text-white shadow-lg border border-white/20 ${routine?.id === 'rest' ? 'bg-emerald-500' : routine?.id === 'off' ? 'bg-slate-500' : (completion?.color || 'bg-slate-500')}`}>
-                                                            <LucideIcon name={routine?.id === 'rest' ? "trending-up" : routine?.id === 'off' ? "moon" : (completion?.miniIcon || "star")} size={12} />
-                                                        </div>
-                                                    )}
-                                                    {log && (log.note || log.weight || log.ringKcal || log.boxingKcal) && <div className="absolute top-1.5 left-1.5 w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_#22d3ee]"></div>}
-                                                    {log && routine && <div className={`absolute bottom-1 w-[85%] rounded-full text-[9px] font-black text-center truncate px-0.5 ${isActive ? 'bg-white text-cyan-600 shadow-sm' : 'bg-slate-800 text-white opacity-80'}`}>{routine.label}</div>}
+                                                <button key={dStr} onClick={() => setSelectedDate(date)} className={`calendar-cell rounded-[1.8rem] sm:rounded-[2.2rem] transition-all duration-300 border-2 ${isActive ? 'bg-cyan-500 border-white shadow-xl scale-110 z-10' : 'bg-white/5 border-transparent hover:bg-white/10'} ${formatDate(new Date()) === dStr && !isActive ? 'bg-cyan-900/40 border-cyan-400/50' : ''}`}>
+                                                    <span className={`text-2xl sm:text-4xl font-black ${isActive ? 'text-white' : formatDate(new Date()) === dStr ? 'text-cyan-400' : 'text-slate-400'}`}>{date.getDate()}</span>
+                                                    
+                                                    {/* 하단 기록 표시 영역 (날짜 가림 방지) */}
+                                                    <div className="flex flex-col items-center mt-auto pb-2 gap-1 w-full">
+                                                        {log && routine && (
+                                                            <div className={`p-1.5 rounded-full text-white shadow-lg border border-white/20 scale-90 ${routine?.id === 'rest' ? 'bg-emerald-500' : routine?.id === 'off' ? 'bg-slate-500' : (completion?.color || 'bg-slate-500')}`}>
+                                                                <LucideIcon name={routine?.id === 'rest' ? "trending-up" : routine?.id === 'off' ? "moon" : (completion?.miniIcon || "star")} size={14} />
+                                                            </div>
+                                                        )}
+                                                        {log && (log.note || log.weight || log.ringKcal || log.boxingKcal) && <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_#22d3ee]"></div>}
+                                                    </div>
                                                 </button>
                                             );
                                         })}
@@ -412,76 +408,77 @@
                                 </div>
 
                                 <div className="glass rounded-[2.5rem] p-8 relative overflow-hidden text-center group border-white/5 shadow-2xl">
-                                    <div className="absolute top-[-10px] left-[-10px] opacity-[0.05] text-cyan-400 group-hover:scale-110 transition-transform"><LucideIcon name="quote" size={100} /></div>
-                                    <p className="text-[12px] font-black text-cyan-500 uppercase tracking-[0.4em] mb-3 opacity-80">Today's Pulse</p>
-                                    <p className="text-xl sm:text-3xl font-black italic text-slate-100 leading-snug relative z-10 px-4 drop-shadow-lg">"{currentQuote}"</p>
+                                    <div className="absolute top-[-10px] left-[-10px] opacity-[0.05] text-cyan-400 group-hover:scale-110 transition-transform"><LucideIcon name="quote" size={120} /></div>
+                                    <p className="text-[13px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-4 opacity-80">Today's Pulse</p>
+                                    <p className="text-2xl sm:text-4xl font-black italic text-slate-100 leading-snug relative z-10 px-4 drop-shadow-lg">"{currentQuote}"</p>
                                 </div>
 
-                                <div className="glass rounded-[3rem] overflow-hidden shadow-2xl flex flex-col mb-4 border-white/5">
+                                <div className="glass rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col mb-4 border-white/5">
                                     <div className={`p-8 bg-gradient-to-br ${selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.color : 'from-slate-800 to-slate-900'} transition-all duration-700 relative`}>
-                                        <p className="text-white/60 text-[12px] font-black mb-1 uppercase tracking-widest opacity-90">{selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
-                                        <h2 className="text-3xl sm:text-5xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Combat Briefing"}</h2>
-                                        {selectedLog && <button onClick={deleteLogEntry} className="absolute top-8 right-8 p-3 bg-black/20 rounded-full text-red-400 border border-white/5 hover:scale-110 transition-all shadow-lg"><LucideIcon name="trash-2" size={24} /></button>}
+                                        <p className="text-white/60 text-[13px] font-black mb-1 uppercase tracking-widest opacity-90">{selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
+                                        <h2 className="text-3xl sm:text-5xl font-black text-white italic tracking-tighter uppercase leading-tight">{selectedLog ? ROUTINES.find(r => r.id === selectedLog.programId)?.name : "Mission Briefing"}</h2>
+                                        {selectedLog && <button onClick={deleteLogEntry} className="absolute top-8 right-8 p-3.5 bg-black/20 rounded-full text-red-400 border border-white/5 hover:scale-110 transition-all shadow-lg"><LucideIcon name="trash-2" size={26} /></button>}
                                     </div>
                                     
-                                    <div className="p-8 space-y-10">
+                                    <div className="p-8 space-y-12">
                                         <section>
-                                            <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6">Routine Select</h3>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <h3 className="text-[15px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-8">Routine Select</h3>
+                                            <div className="grid grid-cols-2 gap-5">
                                                 {ROUTINES.map(r => (
-                                                    <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-6 rounded-[2rem] text-left border-2 transition-all active:scale-95 ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-2xl scale-[1.02]' : 'border-white/5 bg-white/5 hover:border-white/10'}`}>
-                                                        <p className={`text-[12px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
-                                                        <p className="text-[16px] font-black text-white uppercase truncate tracking-tight">{r.name}</p>
+                                                    <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} className={`p-6 rounded-[2.2rem] text-left border-2 transition-all active:scale-95 ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-2xl' : 'border-white/5 bg-white/5 hover:border-white/10'}`}>
+                                                        <p className={`text-[13px] font-black mb-1 ${selectedLog?.programId === r.id ? 'text-cyan-400' : 'text-slate-500'}`}>{r.label}</p>
+                                                        <p className="text-[18px] font-black text-white uppercase truncate tracking-tight">{r.name}</p>
                                                     </button>
                                                 ))}
                                             </div>
                                         </section>
 
                                         {selectedLog && (
-                                            <div className="animate-in slide-in-from-top-2 duration-300 space-y-10">
+                                            <div className="animate-in slide-in-from-top-2 duration-300 space-y-12">
+                                                {/* 수행 상태 선택 복구 */}
                                                 {selectedLog.programId !== 'rest' && selectedLog.programId !== 'off' && (
                                                     <section>
-                                                        <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-6">Completion Status</h3>
-                                                        <div className="grid grid-cols-3 gap-4">
+                                                        <h3 className="text-[15px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 mb-8">Completion Status</h3>
+                                                        <div className="grid grid-cols-3 gap-5">
                                                             {COMPLETION_TYPES.map(t => (
-                                                                <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 transition-all active:scale-95 ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-2xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
-                                                                    <LucideIcon name={t.icon} size={36} className="mb-2" />
-                                                                    <span className="text-[12px] font-black uppercase tracking-widest">{t.label}</span>
+                                                                <button key={t.id} onClick={() => saveLog(selectedDateStr, selectedLog.programId, t.id)} className={`flex flex-col items-center justify-center p-7 rounded-[2.2rem] border-2 transition-all active:scale-95 ${selectedLog.status === t.id ? 'bg-white text-slate-950 border-white shadow-2xl scale-105' : 'border-white/5 text-slate-500 hover:border-white/10'}`}>
+                                                                    <LucideIcon name={t.icon} size={40} className="mb-3" />
+                                                                    <span className="text-[13px] font-black uppercase tracking-widest">{t.label}</span>
                                                                 </button>
                                                             ))}
                                                         </div>
                                                     </section>
                                                 )}
 
-                                                <section className="space-y-6">
-                                                    <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4">Performance Stats</h3>
-                                                    <div className="grid grid-cols-2 gap-5">
-                                                        <div className="space-y-2 relative group">
-                                                            <label className="text-[11px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight (kg) <button onClick={()=>clearField('weight')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={16}/></button></label>
-                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="00.0" className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-5 text-xl font-black text-white focus:outline-none focus:ring-2 ring-cyan-400 shadow-inner" />
+                                                <section className="space-y-8">
+                                                    <h3 className="text-[15px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4">Performance Stats</h3>
+                                                    <div className="grid grid-cols-2 gap-6">
+                                                        <div className="space-y-3 relative group">
+                                                            <label className="text-[12px] font-black text-slate-500 uppercase ml-1 flex justify-between">Weight (kg) <button onClick={()=>setTempData(p=>({...p, weight:""}))} className="text-slate-700 hover:text-red-400 transition-colors"><LucideIcon name="x-circle" size={18}/></button></label>
+                                                            <input type="number" step="0.1" value={tempData.weight} onChange={(e) => setTempData({...tempData, weight: e.target.value})} placeholder="00.0" className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-2xl font-black text-white focus:outline-none focus:ring-2 ring-cyan-400 shadow-inner" />
                                                         </div>
-                                                        <div className="space-y-5">
+                                                        <div className="space-y-6">
                                                             {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
                                                                 <div className="space-y-2 group">
-                                                                    <label className="text-[11px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>clearField('ringKcal')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={16}/></button></label>
-                                                                    <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-5 text-lg font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500" />
+                                                                    <label className="text-[12px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>setTempData(p=>({...p, ringKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={18}/></button></label>
+                                                                    <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-xl font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500" />
                                                                 </div>
                                                             )}
                                                             {ROUTINES.find(r => r.id === selectedLog.programId)?.hasBoxing && (
                                                                 <div className="space-y-2 group">
-                                                                    <label className="text-[11px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>clearField('boxingKcal')} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={16}/></button></label>
-                                                                    <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-5 text-lg font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500" />
+                                                                    <label className="text-[12px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>setTempData(p=>({...p, boxingKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={18}/></button></label>
+                                                                    <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-xl font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500" />
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </section>
 
-                                                <section className="space-y-5">
-                                                    <h3 className="text-[14px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex justify-between items-center">Combat Memo <button onClick={()=>clearField('note')} className="text-slate-700 hover:text-red-400"><LucideIcon name="refresh-cw" size={20}/></button></h3>
-                                                    <textarea value={tempData.note} onChange={(e) => setTempData({...tempData, note: e.target.value})} placeholder="오늘의 성과나 컨디션을 기록하세요..." className="w-full bg-white/5 border border-white/10 rounded-[1.8rem] p-6 text-lg text-slate-200 placeholder:text-slate-700 focus:outline-none focus:ring-2 ring-cyan-400 min-h-[160px] resize-none leading-relaxed shadow-inner" />
-                                                    <button onClick={handleManualSave} className="w-full py-6 bg-cyan-600 hover:bg-cyan-500 rounded-[2rem] font-black text-lg uppercase shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4">
-                                                        <LucideIcon name="save" size={24} /> Submit Update
+                                                <section className="space-y-6">
+                                                    <h3 className="text-[15px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-cyan-400 pl-4 flex justify-between items-center">Combat Memo <button onClick={()=>setTempData(p=>({...p, note:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="refresh-cw" size={24}/></button></h3>
+                                                    <textarea value={tempData.note} onChange={(e) => setTempData({...tempData, note: e.target.value})} placeholder="오늘의 훈련 기록이나 소감을 남기세요..." className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-xl text-slate-200 placeholder:text-slate-700 focus:outline-none focus:ring-2 ring-cyan-400 min-h-[200px] resize-none leading-relaxed shadow-inner" />
+                                                    <button onClick={handleManualSave} className="w-full py-8 bg-cyan-600 hover:bg-cyan-500 rounded-[2.5rem] font-black text-xl uppercase shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-5">
+                                                        <LucideIcon name="save" size={28} /> Update Performance
                                                     </button>
                                                 </section>
                                             </div>
@@ -492,32 +489,32 @@
                         )}
 
                         {viewMode === 'chart' && (
-                            <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="flex flex-col gap-10 animate-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex justify-between items-center px-1">
-                                    <h3 className="text-lg font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-3"><LucideIcon name="trending-up" size={24}/> Analytics</h3>
-                                    <div className="flex bg-white/5 rounded-full p-1.5 border border-white/5">
+                                    <h3 className="text-xl font-black text-cyan-400 uppercase tracking-[0.3em] flex items-center gap-4"><LucideIcon name="trending-up" size={28}/> Analytics</h3>
+                                    <div className="flex bg-white/5 rounded-full p-2 border border-white/5 shadow-inner">
                                         {['day', 'week', 'month', 'year'].map(p => (
-                                            <button key={p} onClick={() => setChartPeriod(p)} className={`px-5 py-2.5 rounded-full text-[14px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
+                                            <button key={p} onClick={() => setChartPeriod(p)} className={`px-6 py-3 rounded-full text-[15px] font-black transition-all uppercase ${chartPeriod === p ? 'bg-cyan-500 text-white shadow-xl' : 'text-slate-500 hover:text-white'}`}>{p[0].toUpperCase()}</button>
                                         ))}
                                     </div>
                                 </div>
                                 
-                                <div className="glass rounded-[3rem] p-8 border-white/5 shadow-2xl">
-                                    <h4 className="text-lg font-black text-white uppercase tracking-tight mb-10">Weight Trends (kg)</h4>
+                                <div className="glass rounded-[3.5rem] p-10 border-white/5 shadow-2xl">
+                                    <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-12">Weight Trends (kg)</h4>
                                     <div className="chart-container">
                                         <LineChart data={chartAnalytics} />
                                     </div>
                                 </div>
 
-                                <div className="glass rounded-[3rem] p-8 border-white/5 shadow-2xl">
-                                    <div className="flex justify-between items-center mb-10">
-                                        <h4 className="text-lg font-black text-white uppercase tracking-tight">Energy Burnt</h4>
-                                        <div className="flex gap-5">
-                                            <div className="flex items-center gap-2 text-[12px] font-black text-orange-500 uppercase tracking-widest"><div className="w-3.5 h-3.5 rounded-full bg-orange-500"></div> RF</div>
-                                            <div className="flex items-center gap-2 text-[12px] font-black text-blue-500 uppercase tracking-widest"><div className="w-3.5 h-3.5 rounded-full bg-blue-500"></div> BX</div>
+                                <div className="glass rounded-[3.5rem] p-10 border-white/5 shadow-2xl">
+                                    <div className="flex justify-between items-center mb-12">
+                                        <h4 className="text-2xl font-black text-white uppercase tracking-tight">Energy Burnt</h4>
+                                        <div className="flex gap-6">
+                                            <div className="flex items-center gap-3 text-[14px] font-black text-orange-500 uppercase tracking-widest"><div className="w-4 h-4 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div> RF</div>
+                                            <div className="flex items-center gap-3 text-[14px] font-black text-blue-500 uppercase tracking-widest"><div className="w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div> BX</div>
                                         </div>
                                     </div>
-                                    <div className="chart-container mb-6">
+                                    <div className="chart-container mb-10">
                                         <BarChart data={chartAnalytics} />
                                     </div>
                                 </div>
@@ -525,32 +522,32 @@
                         )}
 
                         {viewMode === 'memo' && (
-                            <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-lg font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-3 mb-2"><LucideIcon name="message-square" size={28}/> Workout Archives</h3>
+                            <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
+                                <h3 className="text-2xl font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-4 mb-4"><LucideIcon name="message-square" size={32}/> Archives</h3>
                                 {memoLogs.length === 0 ? (
-                                    <div className="glass rounded-[3rem] p-24 text-center opacity-30 italic text-xl border-dashed border-2 border-white/10">기록된 소감이 없습니다.</div>
+                                    <div className="glass rounded-[3.5rem] p-24 text-center opacity-30 italic text-2xl border-dashed border-2 border-white/10">기록된 소감이 없습니다.</div>
                                 ) : (
                                     memoLogs.map(([date, data]) => {
                                         const routine = ROUTINES.find(r => r.id === data.programId) || ROUTINES[4];
                                         return (
-                                            <div key={date} className="glass rounded-[2.5rem] overflow-hidden shadow-2xl border-white/5 group mb-4">
-                                                <div className={`px-8 py-6 bg-gradient-to-r ${routine?.color} flex justify-between items-center shadow-lg`}>
-                                                    <span className="text-sm font-black italic tracking-widest">{date.replace(/-/g, '.')}</span>
-                                                    <div className="flex items-center gap-3">
-                                                        <LucideIcon name={routine?.id === 'rest' ? 'trending-up' : routine?.id === 'off' ? 'moon' : 'award'} size={20} className="text-white" />
-                                                        <span className="text-[12px] font-black opacity-90 uppercase tracking-widest">{routine?.label} SUCCESS</span>
+                                            <div key={date} className="glass rounded-[3rem] overflow-hidden shadow-2xl border-white/5 group mb-6 hover:scale-[1.01] transition-all">
+                                                <div className={`px-10 py-8 bg-gradient-to-r ${routine?.color} flex justify-between items-center shadow-lg`}>
+                                                    <span className="text-lg font-black italic tracking-widest">{date.replace(/-/g, '.')}</span>
+                                                    <div className="flex items-center gap-4">
+                                                        <LucideIcon name={routine?.id === 'rest' ? 'trending-up' : routine?.id === 'off' ? 'moon' : 'award'} size={24} className="text-white" />
+                                                        <span className="text-[14px] font-black opacity-90 uppercase tracking-widest">{routine?.label} SUCCESS</span>
                                                     </div>
                                                 </div>
-                                                <div className="p-8 space-y-6">
-                                                    <div className="flex gap-6 items-start">
-                                                        <div className="text-cyan-400 opacity-20 shrink-0 mt-1"><LucideIcon name="quote" size={40} /></div>
-                                                        <p className="text-lg sm:text-2xl text-slate-100 font-medium leading-relaxed italic py-1 drop-shadow-sm">"{data.note}"</p>
+                                                <div className="p-10 space-y-8">
+                                                    <div className="flex gap-8 items-start">
+                                                        <div className="text-cyan-400 opacity-20 shrink-0 mt-1"><LucideIcon name="quote" size={50} /></div>
+                                                        <p className="text-2xl sm:text-3xl text-slate-100 font-medium leading-relaxed italic py-2 drop-shadow-sm">"{data.note}"</p>
                                                     </div>
                                                     {(data.ringKcal || data.boxingKcal || data.weight) && (
-                                                        <div className="flex gap-6 border-t border-white/5 pt-6">
-                                                            {data.weight && <div className="flex items-center gap-3 text-[12px] font-black text-slate-500 uppercase tracking-widest"><LucideIcon name="scale" size={18}/> {data.weight}kg</div>}
-                                                            {data.ringKcal && <div className="flex items-center gap-3 text-[12px] font-black text-orange-500 uppercase tracking-widest"><LucideIcon name="zap" size={18}/> RF {data.ringKcal}</div>}
-                                                            {data.boxingKcal && <div className="flex items-center gap-3 text-[12px] font-black text-blue-500 uppercase tracking-widest"><LucideIcon name="zap" size={18}/> BX {data.boxingKcal}</div>}
+                                                        <div className="flex gap-8 border-t border-white/5 pt-8">
+                                                            {data.weight && <div className="flex items-center gap-4 text-[14px] font-black text-slate-500 uppercase tracking-widest"><LucideIcon name="scale" size={22}/> {data.weight}kg</div>}
+                                                            {data.ringKcal && <div className="flex items-center gap-4 text-[14px] font-black text-orange-500 uppercase tracking-widest"><LucideIcon name="zap" size={22}/> RF {data.ringKcal}</div>}
+                                                            {data.boxingKcal && <div className="flex items-center gap-4 text-[14px] font-black text-blue-500 uppercase tracking-widest"><LucideIcon name="zap" size={22}/> BX {data.boxingKcal}</div>}
                                                         </div>
                                                     )}
                                                 </div>
@@ -562,27 +559,27 @@
                         )}
 
                         {viewMode === 'program' && (
-                            <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-lg font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-3 mb-2"><LucideIcon name="layout-grid" size={28}/> Hybrid Database</h3>
-                                <div className="grid grid-cols-1 gap-6">
+                            <div className="flex flex-col gap-10 animate-in slide-in-from-bottom-4 duration-500">
+                                <h3 className="text-2xl font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-4 mb-4"><LucideIcon name="layout-grid" size={32}/> Hybrid Database</h3>
+                                <div className="grid grid-cols-1 gap-8">
                                     {ROUTINES.map(r => (
-                                        <div key={r.id} className="glass rounded-[2.5rem] overflow-hidden shadow-2xl border-white/5 group">
-                                            <div className={`bg-gradient-to-br ${r.color} p-8 flex justify-between items-center shadow-lg`}>
-                                                <span className="font-black text-2xl text-white italic uppercase drop-shadow-lg tracking-tight">{r.label} - {r.name}</span>
-                                                <LucideIcon name={r.id === 'rest' ? "trending-up" : r.id === 'off' ? "moon" : "flame"} size={32} className="text-white" />
+                                        <div key={r.id} className="glass rounded-[3.5rem] overflow-hidden shadow-2xl border-white/5 group hover:border-cyan-400/50 transition-all">
+                                            <div className={`bg-gradient-to-br ${r.color} p-10 flex justify-between items-center shadow-lg`}>
+                                                <span className="font-black text-3xl text-white italic uppercase drop-shadow-lg tracking-tight">{r.label} - {r.name}</span>
+                                                <LucideIcon name={r.id === 'rest' ? "trending-up" : r.id === 'off' ? "moon" : "flame"} size={40} className="text-white" />
                                             </div>
-                                            <div className="p-8 space-y-6">
-                                                <p className="text-slate-100 text-lg font-bold tracking-tight leading-snug">{r.detail}</p>
-                                                <p className="text-base text-slate-400 font-medium italic opacity-90 leading-relaxed border-t border-white/5 pt-6">"{r.synergy}"</p>
+                                            <div className="p-10 space-y-8">
+                                                <p className="text-slate-100 text-2xl font-bold tracking-tight leading-snug">{r.detail}</p>
+                                                <p className="text-lg text-slate-400 font-medium italic opacity-90 leading-relaxed border-t border-white/5 pt-8">"{r.synergy}"</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="glass rounded-[3rem] p-10 border-cyan-400/20 shadow-2xl mb-12 text-center">
-                                    <h3 className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-8 flex items-center justify-center gap-3"><LucideIcon name="database" size={24} /> System Management</h3>
-                                    <div className="grid grid-cols-1 gap-5">
-                                        <button onClick={exportData} className="flex items-center justify-center gap-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-6 rounded-[2rem] text-lg uppercase transition-all shadow-2xl active:scale-95"><LucideIcon name="download" size={24} /> Backup Database (.json)</button>
-                                        <button onClick={() => fileInputRef.current.click()} className="flex items-center justify-center gap-4 bg-white/10 hover:bg-white/20 text-white font-black py-6 rounded-[2rem] text-lg uppercase transition-all border border-white/5 shadow-2xl"><LucideIcon name="upload" size={24} /> Restore Database File</button>
+                                <div className="glass rounded-[3.5rem] p-12 border-cyan-400/20 shadow-2xl mb-12 text-center">
+                                    <h3 className="text-base font-black text-cyan-400 uppercase tracking-widest mb-10 flex items-center justify-center gap-4"><LucideIcon name="database" size={32} /> System Management</h3>
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <button onClick={exportData} className="flex items-center justify-center gap-5 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-8 rounded-[2.5rem] text-xl uppercase transition-all shadow-2xl active:scale-95"><LucideIcon name="download" size={32} /> Backup DB (.json)</button>
+                                        <button onClick={() => fileInputRef.current.click()} className="flex items-center justify-center gap-5 bg-white/10 hover:bg-white/20 text-white font-black py-8 rounded-[2.5rem] text-xl uppercase transition-all border border-white/5 shadow-2xl"><LucideIcon name="upload" size={32} /> Restore DB File</button>
                                         <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
                                     </div>
                                 </div>
@@ -590,27 +587,27 @@
                         )}
 
                         {/* 하단 네비게이션 */}
-                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[95%] max-w-md glass rounded-[3rem] p-2 flex gap-2 shadow-[0_40px_100px_rgba(0,0,0,0.9)] z-50 border-white/20 no-scrollbar overflow-x-auto">
-                            <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-5 rounded-[2.5rem] text-[11px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="calendar" size={24} /> CAL</button>
-                            <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-5 rounded-[2.5rem] text-[11px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="message-square" size={24} /> MEMO</button>
-                            <button onClick={() => setViewMode('chart')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-5 rounded-[2.5rem] text-[11px] font-black transition-all uppercase tracking-widest ${viewMode === 'chart' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="trending-up" size={24} /> CHART</button>
-                            <button onClick={() => setViewMode('program')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-5 rounded-[2.5rem] text-[11px] font-black transition-all uppercase tracking-widest ${viewMode === 'program' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500'}`}><LucideIcon name="layout-grid" size={24} /> DB</button>
+                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[96%] max-w-lg glass rounded-[3.5rem] p-2.5 flex gap-2.5 shadow-[0_50px_100px_rgba(0,0,0,0.95)] z-50 border-white/20 no-scrollbar overflow-x-auto">
+                            <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-2.5 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="calendar" size={30} /> CAL</button>
+                            <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-2.5 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="message-square" size={30} /> MEMO</button>
+                            <button onClick={() => setViewMode('chart')} className={`flex-1 flex flex-col items-center justify-center gap-2.5 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'chart' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="trending-up" size={30} /> CHART</button>
+                            <button onClick={() => setViewMode('program')} className={`flex-1 flex flex-col items-center justify-center gap-2.5 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'program' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="layout-grid" size={30} /> DB</button>
                         </div>
                     </div>
 
-                    {toast && <div className="fixed bottom-36 left-1/2 -translate-x-1/2 z-[200] glass px-10 py-6 rounded-full shadow-[0_30px_60px_rgba(0,0,0,0.8)] border-cyan-400/50 animate-in fade-in slide-in-from-bottom-10 transition-all"><p className="text-lg font-black text-cyan-400 tracking-tight flex items-center gap-4"><LucideIcon name="check-circle" size={24} /> {toast}</p></div>}
+                    {toast && <div className="fixed bottom-44 left-1/2 -translate-x-1/2 z-[200] glass px-12 py-8 rounded-full shadow-[0_40px_80px_rgba(0,0,0,0.9)] border-cyan-400/60 animate-in fade-in slide-in-from-bottom-12 transition-all"><p className="text-xl font-black text-cyan-400 tracking-tight flex items-center gap-5"><LucideIcon name="check-circle" size={30} /> {toast}</p></div>}
 
                     {showNavModal && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[3.5rem] p-12 w-full max-w-sm shadow-2xl">
-                                <div className="flex justify-between items-center mb-10 text-cyan-400 font-black italic uppercase tracking-widest text-2xl">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-3 bg-white/5 rounded-full border border-white/5"><LucideIcon name="x" size={28} /></button></div>
-                                <div className="space-y-10 text-center">
-                                    <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-4xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
+                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-md shadow-2xl">
+                                <div className="flex justify-between items-center mb-10 text-cyan-400 font-black italic uppercase tracking-widest text-3xl">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-4 bg-white/5 rounded-full border border-white/5"><LucideIcon name="x" size={32} /></button></div>
+                                <div className="space-y-12 text-center">
+                                    <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-10 text-5xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
                                         {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y} className="bg-slate-950">{y} YEAR</option>)}
                                     </select>
-                                    <div className="grid grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-4 gap-4">
                                         {Array.from({length: 12}).map((_, i) => (
-                                            <button key={i} onClick={() => { setViewDate(new Date(viewDate.getFullYear(), i, 1)); setShowNavModal(false); }} className={`py-5 rounded-2xl text-xl font-black transition-all ${viewDate.getMonth() === i ? 'bg-cyan-500 text-white shadow-2xl' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}>{i + 1}</button>
+                                            <button key={i} onClick={() => { setViewDate(new Date(viewDate.getFullYear(), i, 1)); setShowNavModal(false); }} className={`py-6 rounded-3xl text-2xl font-black transition-all ${viewDate.getMonth() === i ? 'bg-cyan-500 text-white shadow-2xl' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}>{i + 1}</button>
                                         ))}
                                     </div>
                                 </div>
@@ -620,14 +617,14 @@
 
                     {showHelp && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[3.5rem] p-10 w-full max-w-sm shadow-2xl space-y-10">
-                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-2xl">Manual<button onClick={() => setShowHelp(false)} className="p-3 bg-white/5 rounded-full"><LucideIcon name="x" size={24} /></button></div>
-                                <div className="space-y-8 text-lg leading-relaxed text-slate-300">
-                                    <p><strong>1. 명언 시스템</strong>: 365일 고유 로직을 통해 매일 새로운 동기부여 문구를 제공합니다.</p>
-                                    <p><strong>2. 탭 오류 수정</strong>: MEMO와 DB 탭의 출력 오류를 해결하여 모든 화면이 정상 표시됩니다.</p>
-                                    <p><strong>3. 수행 상태 선택</strong>: 루틴 선택 시 <span className="text-cyan-400 font-bold">FULL, RING, BOX</span> 상태를 즉시 기록할 수 있습니다.</p>
+                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-lg shadow-2xl space-y-12">
+                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-3xl">Manual<button onClick={() => setShowHelp(false)} className="p-4 bg-white/5 rounded-full"><LucideIcon name="x" size={32} /></button></div>
+                                <div className="space-y-8 text-xl leading-relaxed text-slate-300">
+                                    <p><strong>1. 365일 명언</strong>: 매일 고유한 로직을 통해 새로운 동기부여 문구를 제공합니다.</p>
+                                    <p><strong>2. 탭 오류 수정</strong>: MEMO와 DB 탭의 렌더링 문제를 해결했습니다.</p>
+                                    <p><strong>3. 캘린더 가독성</strong>: 날짜와 기록 아이콘이 겹치지 않도록 레이아웃을 개선했습니다.</p>
                                 </div>
-                                <button onClick={() => setShowHelp(false)} className="w-full py-6 bg-cyan-600 rounded-[2.5rem] font-black uppercase text-sm active:scale-95 transition-all shadow-2xl">I Understood</button>
+                                <button onClick={() => setShowHelp(false)} className="w-full py-8 bg-cyan-600 rounded-[3rem] font-black uppercase text-lg active:scale-95 transition-all shadow-2xl">I Understood</button>
                             </div>
                         </div>
                     )}
