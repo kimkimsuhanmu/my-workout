@@ -124,7 +124,7 @@
             { id: 'boxing', label: 'BOX', component: <BoxingGloveIcon size={16} className="text-blue-500" />, color: 'text-blue-500', desc: "복싱만" },
         ];
 
-        // --- 300개 명언 데이터베이스 (생략 없이 통합) ---
+        // --- 300개 명언 데이터베이스 ---
         const BASE_QUOTES = [
             "시작이 반이 아니라, 시작이 전부다.", "운동을 하지 않을 핑계는 1,000가지가 넘지만, 해야 할 이유는 단 하나뿐이다.", "가장 힘든 세트는 현관문을 나서는 것이다.", "어제보다 딱 1%만 더 나아가라.", "동기부여는 시작하게 만들고, 습관은 계속하게 만든다.",
             "오늘 걷지 않으면 내일은 뛰어야 한다.", "당신이 쉬고 있을 때, 누군가는 나아가고 있다.", "꾸준함이 비범함을 만든다.", "핑계는 칼로리를 태우지 못한다.", "'내일부터'라는 말은 가장 위험한 마약이다.",
@@ -171,7 +171,7 @@
             "변명이라는 예외 처리를 차단하라. 오직 '실행'만이 결과값을 낸다.", "운동 루틴은 인생을 돌리는 무한 루프여야 한다.", "데이터는 거짓말을 하지 않는다. 인바디는 로그 기록이다.", "외형을 바꾸고 싶다면 백엔드부터 강화하라.", "성능 저하의 원인은 나이가 아니라 관리 부실이다.",
             "운동을 건너뛰는 것은 미래의 건강을 미리 끌어다 쓰는 빚이다.", "탄탄한 코어는 흔들리지 않는 서버와 같다.", "반복 작업을 지루해하지 마라. 숙련도를 결정한다.", "당신의 잠재력은 아직 컴파일되지 않은 소스 코드다.", "세상에 완벽한 몸은 없지만, 최적화된 몸은 있다.",
             "당신이 통제할 수 있는 유일한 것은 당신의 신체와 의지뿐이다.", "고통은 피할 수 없지만, 굴복할지는 선택할 수 있다.", "거친 환경이 강한 인간을 만들고, 안락한 침대가 약한 인간을 만든다.", "운명은 당신을 넘어뜨릴 수 있지만, 일어서는 것은 당신의 몫이다.", "감각의 즐거움은 짧고, 성취의 자부심은 길다.",
-            "진정한 자유는 자신의 욕망을 통제할 수 있을 때 온다.", "외부의 평가에 휘둘리지 마라. 오직 바벨만이 가치를 말해준다.", "훈련은 자신을 깎아내어 본질을 찾아가는 조각 과정이다.", "죽음을 기억하라. 오늘 움직이지 않으면 기회는 영원히 사라진다.", "강함은 자랑하기 위함이 아니라, 약한 자를 돕기 위한 준비다.",
+            "진정한 자유는 자신의 욕망을 통제할 수 있을 때 온다.", "외부의 평가에 휘둘리지 마라. 오직 바벨만이 가치의 척도다.", "훈련은 본질을 찾아가는 조각 과정이다.", "죽음을 기억하라. 오늘 움직이지 않으면 기회는 사라진다.", "강함은 자랑이 아니라, 약한 자를 돕기 위한 준비다.",
             "인내심은 근육과 같다. 쓸수록 단단해지고 쓰지 않을수록 퇴화한다.", "가장 큰 승리는 어제의 나태함을 이기는 것이다.", "고결함은 당신의 자세와 태도에서 뿜어져 나온다.", "역경은 당신이 누구인지 알려주는 거울이다.", "육체의 고통을 견디는 법을 배우면, 삶의 시련도 견딜 수 있다.",
             "불평하지 마라. 그 시간에 한 번 더 밀어 올려라.", "당신의 육체는 당신 영혼이 거하는 신전이다.", "절제는 가장 혹독한 훈련이자 가장 달콤한 열매다.", "지금 고통스러운가? 그렇다면 살아있으며 성장하고 있는 것이다.", "현자는 건강을 최고의 재산으로 여기고 매일 가꾼다.",
             "\"바쁘다\"는 말은 우선순위에서 밀렸다는 고백일 뿐이다.", "살을 빼고 싶은 게 아니라, 살을 뺄 마음이 없는 것 아닌가?", "거울 앞에서 하는 후회는 헬스장에서 흘리는 땀보다 훨씬 쓰다.", "남들은 당신의 과정에 관심 없다. 변화된 결과로만 증명하라.", "유전자를 탓하기 전에 당신의 식단부터 돌아봐라.",
@@ -191,7 +191,7 @@
         function App() {
             const [logs, setLogs] = useState({});
             const [viewMode, setViewMode] = useState('calendar'); 
-            const [viewDate, setViewDate] = useState(new Date()); // 현재 날짜 기반 초기화
+            const [viewDate, setViewDate] = useState(new Date()); 
             const [selectedDate, setSelectedDate] = useState(new Date());
             const [showNavModal, setShowNavModal] = useState(false);
             const [showHelp, setShowHelp] = useState(false);
@@ -200,7 +200,6 @@
             const fileInputRef = useRef(null);
             const [tempData, setTempData] = useState({ ringKcal: "", boxingKcal: "", weight: "", note: "" });
 
-            // 한국 로컬 시간 기준 날짜 변환 함수
             const formatDate = (date) => {
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -221,7 +220,7 @@
             const selectedLog = logs[selectedDateStr];
 
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_v40_final');
+                const saved = localStorage.getItem('workout_logs_v41_final');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
@@ -253,7 +252,6 @@
                 return BASE_QUOTES[dayOfYear % BASE_QUOTES.length];
             }, [selectedDate]);
 
-            // 코스 추천 알고리즘
             const recommendedRoutineId = useMemo(() => {
                 const prev = new Date(selectedDate);
                 prev.setDate(prev.getDate() - 1);
@@ -277,20 +275,20 @@
                     [dateStr]: { ...existing, programId: programId || existing.programId, status: status || existing.status, ...updates, updatedAt: new Date().toISOString() } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v40_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v41_final', JSON.stringify(newLogs));
             };
 
             const handleManualSave = () => {
                 if (!selectedLog) { showMessage("루틴을 먼저 선택하세요."); return; }
                 saveLog(selectedDateStr, selectedLog.programId, selectedLog.status, tempData);
-                showMessage("데이터가 성공적으로 동기화되었습니다.");
+                showMessage("데이터가 동기화되었습니다.");
             };
 
             const deleteLogEntry = () => {
                 const newLogs = { ...logs };
                 delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v40_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v41_final', JSON.stringify(newLogs));
                 showMessage("기록이 삭제되었습니다.");
             };
 
@@ -300,7 +298,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `limit_breaker_routine.json`;
+                link.download = `limit_breaker_v41.json`;
                 link.click();
             };
 
@@ -313,15 +311,15 @@
                         const imported = JSON.parse(e.target.result);
                         if (imported) {
                             setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_v40_final', JSON.stringify({ ...logs, ...imported }));
-                            showMessage("데이터를 복구했습니다.");
+                            localStorage.setItem('workout_logs_v41_final', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("복구 성공!");
                         }
                     } catch (err) { showMessage("오류 발생"); }
                 };
                 reader.readAsText(file);
             };
 
-            // --- 정교화된 주차 계산 로직 (일요일 시작 기준) ---
+            // --- 주차/월/년 계산 로직 (수정: 가장 빠른 일요일 기준) ---
             const getWeekInfo = (dateStr) => {
                 const d = new Date(dateStr);
                 const year = d.getFullYear();
@@ -346,10 +344,11 @@
 
             const chartAnalytics = useMemo(() => {
                 const sortedDates = Object.keys(logs).sort();
-                if (sortedDates.length === 0) return { items: [], subTitle: "" };
+                if (sortedDates.length === 0) return { items: [], subTitle: "", totalKcal: 0 };
 
                 let aggregated = {};
                 let subTitle = "";
+                let totalKcal = 0;
 
                 sortedDates.forEach(dateStr => {
                     const log = logs[dateStr];
@@ -358,7 +357,7 @@
                     let displayLabel = "";
 
                     if (chartPeriod === 'week') {
-                        // 주간 모드: 일요일~토요일 상세
+                        // 주간 모드: 현재 뷰 날짜가 속한 '일~토' 한 주만 표시
                         const startOfWeek = new Date(viewDate);
                         startOfWeek.setDate(viewDate.getDate() - viewDate.getDay());
                         const endOfWeek = new Date(startOfWeek);
@@ -371,7 +370,7 @@
                             subTitle = `${info.month}월 ${info.week}주차`;
                         }
                     } else if (chartPeriod === 'month') {
-                        // 월간 모드: 주차별 집계
+                        // 월간 모드: 해당 월의 모든 주차별 집계
                         if (dateObj.getMonth() === viewDate.getMonth() && dateObj.getFullYear() === viewDate.getFullYear()) {
                             const info = getWeekInfo(dateStr);
                             key = `W${info.week}`;
@@ -379,7 +378,7 @@
                             subTitle = `${info.month}월`;
                         }
                     } else if (chartPeriod === 'year') {
-                        // 연간 모드: 월별 집계
+                        // 연간 모드: 해당 연도의 월별 집계
                         if (dateObj.getFullYear() === viewDate.getFullYear()) {
                             const monthNum = dateObj.getMonth() + 1;
                             key = `M${monthNum}`;
@@ -390,8 +389,11 @@
 
                     if (key) {
                         if (!aggregated[key]) aggregated[key] = { ring: 0, box: 0, weights: [], label: displayLabel };
-                        aggregated[key].ring += parseFloat(log.ringKcal) || 0;
-                        aggregated[key].box += parseFloat(log.boxingKcal) || 0;
+                        const ring = parseFloat(log.ringKcal) || 0;
+                        const box = parseFloat(log.boxingKcal) || 0;
+                        aggregated[key].ring += ring;
+                        aggregated[key].box += box;
+                        totalKcal += (ring + box);
                         if (log.weight) aggregated[key].weights.push(parseFloat(log.weight));
                     }
                 });
@@ -402,13 +404,13 @@
                     weight: item.weights.length > 0 ? (item.weights.reduce((a, b) => a + b, 0) / item.weights.length).toFixed(1) : null
                 }));
 
-                return { items, subTitle };
+                return { items, subTitle, totalKcal };
             }, [logs, chartPeriod, viewDate]);
 
-            // 차트 렌더링 컴포넌트
+            // 차트 렌더링
             const BarChart = ({ data }) => {
                 const width = 300, height = 150;
-                if (data.length === 0) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">표시할 데이터가 없습니다.</div>;
+                if (data.length === 0) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">데이터가 없습니다.</div>;
                 const maxKcal = Math.max(...data.map(d => d.total), 500);
                 const barWidth = Math.min((width / data.length) * 0.7, 45);
                 return (
@@ -421,7 +423,7 @@
                                     <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" />
                                     <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" />
                                     <text x={x + barWidth/2} y={height + 25} textAnchor="middle" fontSize="9" fill="#64748b" fontWeight="bold">{d.label}</text>
-                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="12" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
+                                    {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="11" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
                                     {d.box > 40 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
                                     {d.ring > 40 && <text x={x + barWidth/2} y={height - (rH/2) + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">{Math.round(d.ring)}</text>}
                                 </g>
@@ -473,7 +475,6 @@
                     </div>
 
                     <div className="w-full max-w-4xl mx-auto px-4 pt-6 md:pt-10">
-                        {/* 헤더 */}
                         <header className="flex justify-between items-center mb-8 px-1">
                             <div className="shrink text-left">
                                 <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter leading-none text-white uppercase keep-all">
@@ -648,14 +649,19 @@
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl flex flex-col items-center">
                                         <div className="flex justify-between items-center mb-10 text-center flex-col gap-2">
                                             <h4 className="text-xl font-black text-white uppercase tracking-tight italic">Calories Burnt (kcal)</h4>
-                                            {/* 사용자 요청: n월 n주차 등 대제목 표기 */}
-                                            <div className="text-sm font-black text-cyan-400/80 uppercase tracking-widest mb-4">{chartAnalytics.subTitle}</div>
+                                            {/* 사용자 요청: 제목 옆 총 소모 칼로리 병기 */}
+                                            <div className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                {chartAnalytics.subTitle} 
+                                                <span className="text-[10px] text-white/50 lowercase italic">
+                                                    (Total: {Math.round(chartAnalytics.totalKcal).toLocaleString()} kcal)
+                                                </span>
+                                            </div>
                                             <div className="flex gap-5 justify-center">
                                                 <div className="flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]"></div> RF</div>
                                                 <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div> BX</div>
                                             </div>
                                         </div>
-                                        <div className="chart-container mb-2"><BarChart data={chartAnalytics.items} /></div>
+                                        <div className="chart-container mb-10"><BarChart data={chartAnalytics.items} /></div>
                                     </div>
 
                                     {/* 평균 체중 하단 배치 */}
@@ -694,7 +700,7 @@
                             )}
 
                             {viewMode === 'program' && (
-                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500 pb-20 text-left">
+                                <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-4 duration-500 pb-20 text-left text-keep-all">
                                     <h3 className="text-2xl font-black text-cyan-400 uppercase tracking-[0.3em] px-1 flex items-center gap-4 mb-4"><LucideIcon name="layout-grid" size={32}/> Hybrid Database</h3>
                                     <div className="grid grid-cols-1 gap-6">
                                         {ROUTINES.map(r => (
@@ -778,8 +784,8 @@
                                 <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-3xl text-center w-full">Manual<button onClick={() => setShowHelp(false)} className="p-4 bg-white/5 rounded-full hover:bg-white/10 transition-all"><LucideIcon name="x" size={32} /></button></div>
                                 <div className="space-y-8 text-xl leading-relaxed text-slate-300 keep-all text-center">
                                     <p><strong>1. 차트 계층 구조</strong>: 주간(상세), 월간(주차별), 연간(월별)으로 데이터가 논리적으로 집계됩니다.</p>
-                                    <p><strong>2. 초회복(EVO)</strong>: 시스템 재정비 용어를 '초회복'으로 변경하여 운동 생리학적 의미를 강조했습니다.</p>
-                                    <p><strong>3. 칼로리 우선</strong>: 차트 상단에서 칼로리 소모를, 하단에서 체중 변화를 확인할 수 있습니다.</p>
+                                    <p><strong>2. 총 소모 칼로리</strong>: 각 차트 제목 옆에 선택된 기간의 총 칼로리 합계가 실시간으로 병기됩니다.</p>
+                                    <p><strong>3. 초회복(EVO)</strong>: 시스템 재정비 용어를 '초회복'으로 변경하여 운동 생리학적 의미를 강조했습니다.</p>
                                 </div>
                                 <button onClick={() => setShowHelp(false)} className="w-full py-8 bg-cyan-600 rounded-[3rem] font-black uppercase text-lg active:scale-95 transition-all shadow-2xl">I Understood</button>
                             </div>
