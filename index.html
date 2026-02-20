@@ -140,7 +140,7 @@
             "행동이 답이다.", "지치면 지는 거다.", "미쳐야 미친다(不狂不及).", "단순하게, 그리고 강하게.", "끝날 때까지 끝난 게 아니다.",
             "운동은 몸을 만드는 것이 아니라 인생을 설계하는 것이다.", "당신의 몸은 당신이 사는 유일한 집이다. 수리하며 살아라.", "남과 비교하지 마라. 어제의 당신과 비교하라.", "운동은 나 자신을 사랑하는 가장 적극적인 방법이다.", "스트레스는 근육으로 풀어라.",
             "자존감은 탄탄한 몸에서 시작된다.", "건강한 신체에 건강한 정신이 깃든다.", "운동은 사치가 아니라 생존이다.", "당신이 오늘 흘린 땀방울이 내일의 자신감을 만든다.", "힘든 운동이 인생의 힘든 순간을 버티게 해준다.",
-            "나약한 태도는 나약한 사람을 만든다.", "몸이 바뀌면 인생이 바뀐다.", "1시간의 운동은 하루의 4%에 불과하다.", "스스로에게 한 약속을 지키는 것이 가장 중요하다.", "외면을 가꾸면 내면도 단단해진다.",
+            "나약한 태도는 나약한 사람을 만든다.", "몸이 바뀌면 인생이 바뀐다.", "1시간의 운동은 하루의 4%에 불과하다. 핑계 대지 마라.", "스스로에게 한 약속을 지키는 것이 가장 중요하다.", "외면을 가꾸면 내면도 단단해진다.",
             "가장 큰 적은 거울 속에 있다.", "운동은 벌이 아니라, 당신에게 주는 선물이다.", "지루함을 견디는 자가 승리한다.", "완벽할 필요는 없다. 그저 전보다 나아지면 된다.", "흔들리는 것은 지방이지 당신의 의지가 아니다.",
             "운동 끝나고 먹는 것까지가 운동이다.", "근육은 월세와 같다. 매일 지불하지 않으면 방을 빼야 한다.", "옷으로 가릴 생각 말고 살을 깎아라.", "맛있게 먹으면 0칼로리가 아니라, 운동하면 0칼로리다.", "하기 싫다 생각이 들 때가 바로 운동하러 갈 시간이다.",
             "오늘 쉬면 내일은 더 하기 싫다.", "무거운 건 무거운 거다. 들어라.", "야식은 내일의 당신을 울게 한다.", "거울 속에 비친 내 모습이 마음에 안 든다면, 당장 움직여라.", "청바지가 안 맞는 건 옷 잘못이 아니다.",
@@ -220,7 +220,7 @@
             const selectedLog = logs[selectedDateStr];
 
             useEffect(() => {
-                const saved = localStorage.getItem('workout_logs_v41_final');
+                const saved = localStorage.getItem('workout_logs_v42_stable');
                 if (saved) setLogs(JSON.parse(saved));
             }, []);
 
@@ -275,20 +275,20 @@
                     [dateStr]: { ...existing, programId: programId || existing.programId, status: status || existing.status, ...updates, updatedAt: new Date().toISOString() } 
                 };
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v41_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v42_stable', JSON.stringify(newLogs));
             };
 
             const handleManualSave = () => {
                 if (!selectedLog) { showMessage("루틴을 먼저 선택하세요."); return; }
                 saveLog(selectedDateStr, selectedLog.programId, selectedLog.status, tempData);
-                showMessage("데이터가 동기화되었습니다.");
+                showMessage("데이터가 성공적으로 동기화되었습니다.");
             };
 
             const deleteLogEntry = () => {
                 const newLogs = { ...logs };
                 delete newLogs[selectedDateStr];
                 setLogs(newLogs);
-                localStorage.setItem('workout_logs_v41_final', JSON.stringify(newLogs));
+                localStorage.setItem('workout_logs_v42_stable', JSON.stringify(newLogs));
                 showMessage("기록이 삭제되었습니다.");
             };
 
@@ -298,7 +298,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `limit_breaker_v41.json`;
+                link.download = `limit_breaker_v42.json`;
                 link.click();
             };
 
@@ -311,28 +311,26 @@
                         const imported = JSON.parse(e.target.result);
                         if (imported) {
                             setLogs({ ...logs, ...imported });
-                            localStorage.setItem('workout_logs_v41_final', JSON.stringify({ ...logs, ...imported }));
-                            showMessage("복구 성공!");
+                            localStorage.setItem('workout_logs_v42_stable', JSON.stringify({ ...logs, ...imported }));
+                            showMessage("데이터를 복구했습니다.");
                         }
                     } catch (err) { showMessage("오류 발생"); }
                 };
                 reader.readAsText(file);
             };
 
-            // --- 주차/월/년 계산 로직 (수정: 가장 빠른 일요일 기준) ---
+            // --- 계층형 시간 계산 로직 ---
             const getWeekInfo = (dateStr) => {
                 const d = new Date(dateStr);
                 const year = d.getFullYear();
                 const month = d.getMonth();
                 
-                // 해당 달의 첫 일요일 찾기
                 let firstSunday = new Date(year, month, 1);
                 while (firstSunday.getDay() !== 0) {
                     firstSunday.setDate(firstSunday.getDate() + 1);
                 }
 
                 if (d < firstSunday) {
-                    // 첫 일요일 이전 날짜는 이전 달의 마지막 주차로 처리
                     const lastDayPrevMonth = new Date(year, month, 0);
                     return getWeekInfo(formatDate(lastDayPrevMonth));
                 }
@@ -350,6 +348,26 @@
                 let subTitle = "";
                 let totalKcal = 0;
 
+                // 주간 모드: 현재 뷰 날짜가 속한 '일~토' 한 주 고정
+                const startOfWeek = new Date(viewDate);
+                startOfWeek.setDate(viewDate.getDate() - viewDate.getDay());
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                if (chartPeriod === 'week') {
+                    // 7일간 뼈대 미리 생성 (데이터 없는 날도 표시)
+                    for (let i = 0; i < 7; i++) {
+                        const d = new Date(startOfWeek);
+                        d.setDate(startOfWeek.getDate() + i);
+                        const dStr = formatDate(d);
+                        aggregated[dStr] = { ring: 0, box: 0, weights: [], label: formatChartLabel(dStr) };
+                        if (i === 0) {
+                            const info = getWeekInfo(dStr);
+                            subTitle = `${info.month}월 ${info.week}주차`;
+                        }
+                    }
+                }
+
                 sortedDates.forEach(dateStr => {
                     const log = logs[dateStr];
                     const dateObj = new Date(dateStr);
@@ -357,20 +375,8 @@
                     let displayLabel = "";
 
                     if (chartPeriod === 'week') {
-                        // 주간 모드: 현재 뷰 날짜가 속한 '일~토' 한 주만 표시
-                        const startOfWeek = new Date(viewDate);
-                        startOfWeek.setDate(viewDate.getDate() - viewDate.getDay());
-                        const endOfWeek = new Date(startOfWeek);
-                        endOfWeek.setDate(startOfWeek.getDate() + 6);
-                        
-                        if (dateObj >= startOfWeek && dateObj <= endOfWeek) {
-                            key = dateStr;
-                            displayLabel = formatChartLabel(dateStr);
-                            const info = getWeekInfo(dateStr);
-                            subTitle = `${info.month}월 ${info.week}주차`;
-                        }
+                        if (aggregated[dateStr]) key = dateStr;
                     } else if (chartPeriod === 'month') {
-                        // 월간 모드: 해당 월의 모든 주차별 집계
                         if (dateObj.getMonth() === viewDate.getMonth() && dateObj.getFullYear() === viewDate.getFullYear()) {
                             const info = getWeekInfo(dateStr);
                             key = `W${info.week}`;
@@ -378,7 +384,6 @@
                             subTitle = `${info.month}월`;
                         }
                     } else if (chartPeriod === 'year') {
-                        // 연간 모드: 해당 연도의 월별 집계
                         if (dateObj.getFullYear() === viewDate.getFullYear()) {
                             const monthNum = dateObj.getMonth() + 1;
                             key = `M${monthNum}`;
@@ -407,10 +412,10 @@
                 return { items, subTitle, totalKcal };
             }, [logs, chartPeriod, viewDate]);
 
-            // 차트 렌더링
+            // 차트 컴포넌트
             const BarChart = ({ data }) => {
                 const width = 300, height = 150;
-                if (data.length === 0) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">데이터가 없습니다.</div>;
+                if (data.length === 0) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">데이터 없음</div>;
                 const maxKcal = Math.max(...data.map(d => d.total), 500);
                 const barWidth = Math.min((width / data.length) * 0.7, 45);
                 return (
@@ -436,7 +441,7 @@
             const LineChart = ({ data }) => {
                 const width = 300, height = 120;
                 const valid = data.filter(d => d.weight !== null);
-                if (valid.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">기록 없음</div>;
+                if (valid.length < 1) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic text-slate-400">데이터 없음</div>;
                 const values = valid.map(d => parseFloat(d.weight));
                 const min = Math.min(...values) - 0.5, max = Math.max(...values) + 0.5, range = max - min || 1;
                 const points = valid.map((d, i) => ({
@@ -475,11 +480,10 @@
                     </div>
 
                     <div className="w-full max-w-4xl mx-auto px-4 pt-6 md:pt-10">
-                        <header className="flex justify-between items-center mb-8 px-1">
-                            <div className="shrink text-left">
-                                <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter leading-none text-white uppercase keep-all">
-                                    Limit <span className="text-cyan-400">Breaker</span>
-                                </h1>
+                        {/* 헤더 */}
+                        <header className="flex justify-between items-center mb-8 px-1 text-left">
+                            <div className="shrink">
+                                <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter leading-none text-white uppercase keep-all">Limit <span className="text-cyan-400">Breaker</span></h1>
                                 <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mt-1">NEO-EVO System</p>
                             </div>
                             <div className="glass p-3 rounded-[1.5rem] text-right min-w-[110px] shadow-lg relative border-white/5">
@@ -494,7 +498,7 @@
                         <main className="mb-10 text-center">
                             {viewMode === 'calendar' && (
                                 <div className="flex flex-col gap-5 animate-in fade-in duration-500">
-                                    <div className="glass rounded-[2.2rem] p-4 sm:p-8 shadow-2xl border-white/5 text-center">
+                                    <div className="glass rounded-[2.2rem] p-4 sm:p-8 shadow-2xl border-white/5">
                                         <div className="flex justify-between items-center mb-6">
                                             <button onClick={() => setShowNavModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-base sm:text-2xl font-black italic hover:border-cyan-400/50 transition-all">
                                                 {viewDate.getFullYear()} <span className="text-cyan-400">{viewDate.getMonth() + 1}월</span>
@@ -517,7 +521,6 @@
                                                 const completion = log ? COMPLETION_TYPES.find(t => t.id === log.status) : null;
                                                 const isActive = selectedDateStr === dStr;
                                                 const isTodayLocal = todayStr === dStr;
-
                                                 return (
                                                     <button key={dStr} onClick={() => setSelectedDate(date)} 
                                                         className={`calendar-cell rounded-[1rem] sm:rounded-[1.5rem] transition-all duration-300 border-2 
@@ -566,7 +569,7 @@
                                                         return (
                                                             <button key={r.id} onClick={() => saveLog(selectedDateStr, r.id, (r.id === 'rest' || r.id === 'off') ? 'full' : (selectedLog?.status || 'full'))} 
                                                                 className={`p-4 rounded-[1.8rem] text-left border-2 transition-all tap-scale relative overflow-hidden 
-                                                                ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg scale-[1.02]' : 'border-white/5 bg-white/5 hover:border-white/20'}
+                                                                ${selectedLog?.programId === r.id ? 'border-cyan-400 bg-cyan-400/10 shadow-lg scale-[1.02]' : 'border-white/5 bg-white/5 hover:border-white/10'}
                                                                 ${isRecommended && !selectedLog ? 'ring-2 ring-cyan-500/50' : ''}`}>
                                                                 {isRecommended && !selectedLog && (
                                                                     <div className="absolute top-0 right-0 bg-cyan-500 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl-lg recommend-badge tracking-tighter uppercase">Recommended</div>
@@ -649,7 +652,6 @@
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl flex flex-col items-center">
                                         <div className="flex justify-between items-center mb-10 text-center flex-col gap-2">
                                             <h4 className="text-xl font-black text-white uppercase tracking-tight italic">Calories Burnt (kcal)</h4>
-                                            {/* 사용자 요청: 제목 옆 총 소모 칼로리 병기 */}
                                             <div className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                                 {chartAnalytics.subTitle} 
                                                 <span className="text-[10px] text-white/50 lowercase italic">
@@ -750,7 +752,7 @@
                             )}
                         </main>
 
-                        <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[96%] max-w-lg glass rounded-[3.5rem] p-2.5 flex gap-2 shadow-[0_50px_100px_rgba(0,0,0,0.95)] z-50 border-white/20 no-scrollbar overflow-x-auto">
+                        <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[96%] max-w-lg glass rounded-[3.5rem] p-2.5 flex gap-2 shadow-[0_50px_100px_rgba(0,0,0,0.95)] z-50 border-white/20 no-scrollbar overflow-x-auto text-left">
                             <button onClick={() => setViewMode('calendar')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'calendar' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="calendar" size={30} /> CAL</button>
                             <button onClick={() => setViewMode('memo')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'memo' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="message-square" size={30} /> MEMO</button>
                             <button onClick={() => setViewMode('chart')} className={`flex-1 flex flex-col items-center justify-center gap-2 py-6 rounded-[3rem] text-[13px] font-black transition-all uppercase tracking-widest ${viewMode === 'chart' ? 'bg-white text-slate-950 shadow-2xl scale-105' : 'text-slate-500 hover:text-white'}`}><LucideIcon name="trending-up" size={30} /> CHART</button>
@@ -774,20 +776,6 @@
                                         ))}
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {showHelp && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-lg shadow-2xl space-y-12">
-                                <div className="flex justify-between items-center text-cyan-400 font-black italic uppercase tracking-widest text-3xl text-center w-full">Manual<button onClick={() => setShowHelp(false)} className="p-4 bg-white/5 rounded-full hover:bg-white/10 transition-all"><LucideIcon name="x" size={32} /></button></div>
-                                <div className="space-y-8 text-xl leading-relaxed text-slate-300 keep-all text-center">
-                                    <p><strong>1. 차트 계층 구조</strong>: 주간(상세), 월간(주차별), 연간(월별)으로 데이터가 논리적으로 집계됩니다.</p>
-                                    <p><strong>2. 총 소모 칼로리</strong>: 각 차트 제목 옆에 선택된 기간의 총 칼로리 합계가 실시간으로 병기됩니다.</p>
-                                    <p><strong>3. 초회복(EVO)</strong>: 시스템 재정비 용어를 '초회복'으로 변경하여 운동 생리학적 의미를 강조했습니다.</p>
-                                </div>
-                                <button onClick={() => setShowHelp(false)} className="w-full py-8 bg-cyan-600 rounded-[3rem] font-black uppercase text-lg active:scale-95 transition-all shadow-2xl">I Understood</button>
                             </div>
                         </div>
                     )}
