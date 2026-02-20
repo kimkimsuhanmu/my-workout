@@ -108,11 +108,11 @@
             return <span ref={containerRef} className="inline-flex items-center justify-center shrink-0" />;
         };
 
-        // --- 루틴 및 가이드 데이터 ---
+        // --- 루틴 및 가이드 데이터 (색상 테마 스왑) ---
         const ROUTINES = [
             { id: 'day1', label: "D1", name: "하체 파워 보강", detail: "링피트 하체(15~20분) + 피박3 고강도(50분)", color: "from-blue-600 to-indigo-700", hasRingfit: true, hasBoxing: true, synergy: "하체 파워 보강: 스쿼트와 런지로 하체 근력을 먼저 소진한 뒤 복싱을 하면 하체 지지력이 좋아지고 체지방 연소가 더 빨라집니다." },
-            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-cyan-400 to-blue-500", hasRingfit: false, hasBoxing: true, synergy: "순수 심폐 폭격: 링피트를 제외하여 관절의 피로도를 관리하면서, 50분 내내 높은 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다." },
-            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-orange-500 to-red-600", hasRingfit: true, hasBoxing: true, synergy: "자세 및 밸런스: 복싱의 웅크린 자세로 인해 굳기 쉬운 등과 어깨를 링피트로 펴주고, 코어를 잡아 펀치의 안정성을 높입니다." },
+            { id: 'day2', label: "D2", name: "순수 심폐 폭격", detail: "피트니스 복싱 3 고강도(50분) 단독 수행", color: "from-orange-500 to-red-600", hasRingfit: false, hasBoxing: true, synergy: "순수 심폐 폭격: 링피트를 제외하여 관절의 피로도를 관리하면서, 50분 내내 높은 심박수를 유지해 유산소 효과를 정점으로 끌어올립니다." },
+            { id: 'day3', label: "D3", name: "자세 및 밸런스", detail: "링피트 코어/등(20분) + 피박3 고강도(50분)", color: "from-cyan-400 to-blue-500", hasRingfit: true, hasBoxing: true, synergy: "자세 및 밸런스: 복싱의 웅크린 자세로 인해 굳기 쉬운 등과 어깨를 링피트로 펴주고, 코어를 잡아 펀치의 안정성을 높입니다." },
             { id: 'rest', label: "EVO", name: "초회복 (Evolution)", detail: "완전 휴식 (Recovery)", color: "from-emerald-500 to-teal-600", hasRingfit: false, hasBoxing: false, synergy: "초회복: 고강도 운동 후 근육이 재생되는 필수 시간입니다. 가벼운 산책이나 스트레칭만 권장합니다." },
             { id: 'off', label: "OFF", name: "일반 휴식", detail: "개인 사정으로 인한 정지 상태", color: "from-slate-600 to-slate-800", hasRingfit: false, hasBoxing: false, synergy: "컨디션 난조 시 에너지를 보존하고 다음 사이클을 준비하세요." },
         ];
@@ -126,11 +126,11 @@
 
         const COMPLETION_TYPES = [
             { id: 'full', label: 'FULL', component: <LucideIcon name="trophy" size={16} className="text-yellow-400" />, color: 'text-yellow-400', desc: "전체 완수" },
-            { id: 'ringfit', label: 'RING', component: <RingConIcon size={16} className="text-orange-500" />, color: 'text-orange-500', desc: "링피트만" },
-            { id: 'boxing', label: 'BOX', component: <BoxingGloveIcon size={16} className="text-blue-500" />, color: 'text-blue-500', desc: "복싱만" },
+            { id: 'ringfit', label: 'RING', component: <RingConIcon size={16} className="text-blue-500" />, color: 'text-blue-500', desc: "링피트만" },
+            { id: 'boxing', label: 'BOX', component: <BoxingGloveIcon size={16} className="text-orange-500" />, color: 'text-orange-500', desc: "복싱만" },
         ];
 
-        // --- 300개 명언 데이터베이스 (일부만 표기, 실제 코드엔 전체 포함 권장) ---
+        // --- 300개 명언 데이터베이스 (일부만 표기, 실제 코드엔 전체 포함) ---
         const BASE_QUOTES = [
             "시작이 반이 아니라, 시작이 전부다.", "운동을 하지 않을 핑계는 1,000가지가 넘지만, 해야 할 이유는 단 하나뿐이다.", "가장 힘든 세트는 현관문을 나서는 것이다.", "어제보다 딱 1%만 더 나아가라.", "동기부여는 시작하게 만들고, 습관은 계속하게 만든다.",
             "오늘 걷지 않으면 내일은 뛰어야 한다.", "당신이 쉬고 있을 때, 누군가는 나아가고 있다.", "꾸준함이 비범함을 만든다.", "핑계는 칼로리를 태우지 못한다.", "'내일부터'라는 말은 가장 위험한 마약이다.",
@@ -152,7 +152,6 @@
             "오늘 쉬면 내일은 더 하기 싫다.", "무거운 건 무거운 거다. 들어라.", "야식은 내일의 당신을 울게 한다.", "거울 속에 비친 내 모습이 마음에 안 든다면, 당장 움직여라.", "청바지가 안 맞는 건 옷 잘못이 아니다.",
             "지방은 돈 주고도 못 사지만, 근육은 돈 주고도 못 산다.", "운동할 때 얼굴 망가지는 건 훈장이다.", "헬스장 전신 거울은 당신의 미래를 보여준다.", "남들이 독하다 말하면 당신은 잘하고 있는 것이다.", "샤워하고 나올 때의 그 기분만 생각해라.",
             "복근은 주방에서 만들어지고, 체육관에서 다듬어진다.", "고통은 지나가지만 섹시함은 남는다.", "내가 멈추면 내 살들이 좋아한다.", "운동은 최고의 성형이다.", "지금 바로 시작하라. 당신의 인생은 오늘부터 바뀐다."
-            // ... (나머지 200개 명언들도 동일하게 로직에 포함됨)
         ];
 
         function App() {
@@ -311,7 +310,6 @@
                     if (current.getFullYear() > year && current.getDate() > 6) break;
                     
                     const monthNum = current.getMonth() + 1;
-                    // 주차 번호 계산 (월 내에서의 주차)
                     let firstSunOfMonth = new Date(current.getFullYear(), current.getMonth(), 1);
                     while(firstSunOfMonth.getDay() !== 0) firstSunOfMonth.setDate(firstSunOfMonth.getDate() + 1);
                     const weekOfMonth = Math.floor((current.getDate() - firstSunOfMonth.getDate()) / 7) + 1;
@@ -332,7 +330,9 @@
                 const year = d.getFullYear();
                 const month = d.getMonth();
                 let firstSunday = new Date(year, month, 1);
-                while (firstSunday.getDay() !== 0) firstSunday.setDate(firstSunday.getDate() + 1);
+                while (firstSunday.getDay() !== 0) {
+                    firstSunday.setDate(firstSunday.getDate() + 1);
+                }
 
                 if (d < firstSunday) {
                     const lastDayPrevMonth = new Date(year, month, 0);
@@ -409,7 +409,7 @@
                 return { items, subTitle, totalKcal };
             }, [logs, chartPeriod, viewDate]);
 
-            // --- 차트 렌더링 ---
+            // --- 차트 렌더링 (색상 스왑 반영: Ring=Blue, Box=Orange) ---
             const BarChart = ({ data }) => {
                 const width = 300, height = 150;
                 if (data.length === 0) return <div className="h-full flex items-center justify-center opacity-30 text-xs italic">데이터가 없습니다.</div>;
@@ -422,8 +422,10 @@
                             const rH = (d.ring / maxKcal) * height, bH = (d.box / maxKcal) * height;
                             return (
                                 <g key={i}>
-                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#f97316" rx="2" />
-                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#3b82f6" rx="2" />
+                                    {/* 링피트 (블루 계열) */}
+                                    <rect x={x} y={height - rH} width={barWidth} height={rH} fill="#3b82f6" rx="2" />
+                                    {/* 복싱 (오렌지/레드 계열) */}
+                                    <rect x={x} y={height - rH - bH} width={barWidth} height={bH} fill="#f97316" rx="2" />
                                     <text x={x + barWidth/2} y={height + 25} textAnchor="middle" fontSize="9" fill="#64748b" fontWeight="bold">{d.label}</text>
                                     {d.total > 0 && <text x={x + barWidth/2} y={height - rH - bH - 12} textAnchor="middle" fontSize="11" fontWeight="900" fill="#22d3ee">{Math.round(d.total)}</text>}
                                     {d.box > 40 && <text x={x + barWidth/2} y={height - rH - bH + (bH/2) + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">{Math.round(d.box)}</text>}
@@ -605,14 +607,14 @@
                                                             <div className="space-y-4">
                                                                 {ROUTINES.find(r => r.id === selectedLog.programId)?.hasRingfit && (
                                                                     <div className="space-y-1 relative group">
-                                                                        <label className="text-[10px] font-black text-orange-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>setTempData(p=>({...p, ringKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
-                                                                        <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500 shadow-inner placeholder:opacity-20" />
+                                                                        <label className="text-[10px] font-black text-blue-500 uppercase ml-1 flex justify-between">RingFit <button onClick={()=>setTempData(p=>({...p, ringKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
+                                                                        <input type="number" value={tempData.ringKcal} onChange={(e) => setTempData({...tempData, ringKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500 shadow-inner placeholder:opacity-20" />
                                                                     </div>
                                                                 )}
                                                                 {ROUTINES.find(r => r.id === selectedLog.programId)?.hasBoxing && (
                                                                     <div className="space-y-1 relative group">
-                                                                        <label className="text-[10px] font-black text-blue-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>setTempData(p=>({...p, boxingKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
-                                                                        <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-blue-400 focus:outline-none focus:ring-2 ring-blue-500 shadow-inner placeholder:opacity-20" />
+                                                                        <label className="text-[10px] font-black text-orange-500 uppercase ml-1 flex justify-between">Boxing <button onClick={()=>setTempData(p=>({...p, boxingKcal:""}))} className="text-slate-700 hover:text-red-400"><LucideIcon name="x-circle" size={14}/></button></label>
+                                                                        <input type="number" value={tempData.boxingKcal} onChange={(e) => setTempData({...tempData, boxingKcal: e.target.value})} placeholder="kcal" className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] p-4 text-lg font-black text-orange-400 focus:outline-none focus:ring-2 ring-orange-500 shadow-inner placeholder:opacity-20" />
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -646,7 +648,6 @@
                                             ))}
                                         </div>
 
-                                        {/* 상세 기간 선택 (콤보박스) - 동적 생성 로직 적용 */}
                                         <div className="flex gap-2 w-full">
                                             {chartPeriod === 'week' && (
                                                 <select 
@@ -682,7 +683,6 @@
                                         </div>
                                     </div>
 
-                                    {/* 칼로리 소모 상단 배치 */}
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl flex flex-col items-center">
                                         <div className="flex justify-between items-center mb-10 text-center flex-col gap-2">
                                             <h4 className="text-xl font-black text-white uppercase tracking-tight italic">Calories Burnt (kcal)</h4>
@@ -693,14 +693,14 @@
                                                 </span>
                                             </div>
                                             <div className="flex gap-5 justify-center">
-                                                <div className="flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]"></div> RF</div>
-                                                <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div> BX</div>
+                                                {/* 색상 스왑 반영 */}
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div> RF</div>
+                                                <div className="flex items-center gap-2 text-[10px] font-black text-orange-500 uppercase tracking-widest"><div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]"></div> BX</div>
                                             </div>
                                         </div>
                                         <div className="chart-container mb-10"><BarChart data={chartAnalytics.items} /></div>
                                     </div>
 
-                                    {/* 평균 체중 하단 배치 */}
                                     <div className="glass rounded-[2.5rem] p-8 border-white/5 shadow-xl text-center">
                                         <h4 className="text-xl font-black text-white uppercase tracking-tight mb-2 italic">Average Weight (kg)</h4>
                                         <div className="text-xs font-black text-cyan-400/60 uppercase tracking-widest mb-8">{chartAnalytics.subTitle}</div>
@@ -799,7 +799,7 @@
 
                     {showNavModal && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/85 animate-in fade-in duration-300">
-                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-w-md shadow-2xl">
+                            <div className="glass border-white/20 rounded-[4rem] p-12 w-full max-md shadow-2xl">
                                 <div className="flex justify-between items-center mb-10 text-cyan-400 font-black italic uppercase tracking-widest text-3xl text-center w-full">Warp Drive<button onClick={() => setShowNavModal(false)} className="p-4 bg-white/5 rounded-full border border-white/5 hover:bg-red-500/20 transition-all text-center"><LucideIcon name="x" size={32} /></button></div>
                                 <div className="space-y-12 text-center">
                                     <select value={viewDate.getFullYear()} onChange={(e) => setViewDate(new Date(parseInt(e.target.value), viewDate.getMonth(), 1))} className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-10 text-5xl text-white font-black appearance-none outline-none focus:ring-4 ring-cyan-400/20">
